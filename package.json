@@ -1,0 +1,21 @@
+{
+  "name": "amino.js",
+  "version": "1.0.0",
+  "author": "osm1um",
+
+  "main": "./build/index.js",
+  "engines": {
+    "node": "10.x"
+  },
+
+  "scripts": {
+    "clear": "rm -rf build",
+    "build": "find ./src/* -name *.ts | xargs tsc --outDir build/",
+    "run": "node ."
+  },
+  
+  "dependencies": {
+    "@types/node": "^13.1.4",
+    "sync-request": "^6.1.0"
+  }
+}

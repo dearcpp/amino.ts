@@ -1,6 +1,6 @@
 # amino.js
 
-Unofficial client for working with rest-api aminoapps. 
+Unofficial client for working with rest-api aminoapps.
 
 ## How to Use
 The client is written on typescript. If you want to use it, then you will need to install the dependencies and compile the code. You will also need a device identifier, look for it on the Internet, or take your own.
@@ -20,7 +20,7 @@ const client = new IAminoClient(
 You must be sure that the returned data is not empty. This sometimes happens.
 ```javascript
 client.communities.forEach(community => {
-    var members;
+    let members;
     if(members = community.get_online_members(0, 10).members) {
         members.forEach(member => {
             console.log(member.name);

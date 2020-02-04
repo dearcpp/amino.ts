@@ -13,7 +13,7 @@
     "build": "find ./src/* -name *.ts | xargs tsc --outDir build/",
     "run": "node ."
   },
-  
+
   "dependencies": {
     "@types/node": "^13.1.4",
     "sync-request": "^6.1.0"

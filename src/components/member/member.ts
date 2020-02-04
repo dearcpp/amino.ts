@@ -1,6 +1,6 @@
-import IAminoClient, { 
+import IAminoClient, {
     request,
-    IAminoStorage 
+    IAminoStorage
 } from './../../index'
 
 /**
@@ -35,7 +35,7 @@ export class IAminoMember {
     * Updating the structure, by re-requesting information from the server
     */
     public refresh(): IAminoMember {
-        var response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community}/s/user-profile/${this.id}?action=visit`, {
+        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community}/s/user-profile/${this.id}?action=visit`, {
             "headers": {
                 "NDCAUTH": 'sid=' + this.client.session_token
             }
@@ -70,11 +70,11 @@ export class IAminoMember {
 /**
 * Class for storing members objects
 */
-export class IAminoMemberStorage extends IAminoStorage<IAminoMember> {   
-    constructor(client: IAminoClient, array?: any) { 
+export class IAminoMemberStorage extends IAminoStorage<IAminoMember> {
+    constructor(client: IAminoClient, array?: any) {
         super(client, IAminoMemberStorage.prototype);
         array.forEach(element => {
-            var member = new IAminoMember(client, element.ndcId, element.uid);
+            let member = new IAminoMember(client, element.ndcId, element.uid);
             member._set_object(element);
             this.push(member);
         });

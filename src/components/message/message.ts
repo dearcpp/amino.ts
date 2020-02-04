@@ -1,7 +1,7 @@
-import IAminoClient, { 
-    request, 
-    IAminoStorage, 
-    IAminoMember 
+import IAminoClient, {
+    request,
+    IAminoStorage,
+    IAminoMember
 } from './../../index'
 
 /**
@@ -31,7 +31,7 @@ export class IAminoMessage {
     * Method for calling the delete message procedure
     */
     public delete(): void {
-        var response = JSON.parse(request("DELETE", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.thread}/message/${this.id}`, {
+        let response = JSON.parse(request("DELETE", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.thread}/message/${this.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session_token
             }
@@ -60,10 +60,10 @@ export class IAminoMessage {
 /**
 * Class for storing messages objects
 */
-export class IAminoMessageStorage extends IAminoStorage<IAminoMessage> {    
-    constructor(client: IAminoClient, array?: any) { 
+export class IAminoMessageStorage extends IAminoStorage<IAminoMessage> {
+    constructor(client: IAminoClient, array?: any) {
         super(client, IAminoMessageStorage.prototype);
-        array.forEach(element => { 
+        array.forEach(element => {
             this.push(new IAminoMessage(client, element, element.author.ndcId));
         });
     }

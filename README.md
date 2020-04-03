@@ -1,18 +1,17 @@
 # amino.js
-
 Unofficial client for working with rest-api aminoapps.
 
 ## How to Use
-The client is written on typescript. If you want to use it, then you will need to install the dependencies and compile the code. You will also need a device identifier, look for it on the Internet, or take your own.
+The client is written in typescript. If you want to use it, then you will need to install the dependencies and compile the code. You will also need a device identifier, look for it on the Internet, or take your own.
 
 ## Examples
 #### Client initialization
 Initialization of the client is extremely simple.
 ```javascript
 const client = new IAminoClient(
-    'address@gmail.com',
-    'password',
-    'device'
+    "address@gmail.com",
+    "password",
+    "device"
 );
 ```
 
@@ -29,6 +28,15 @@ client.communities.forEach(community => {
 });
 ```
 
+#### Event on message
+Everything here is also quite simple.
+```javascript
+client.on("message", message => {
+    console.log(message);
+});
+```
+
 ## Modules
 + `@types/node`
 + `sync-request`
++ `ws`

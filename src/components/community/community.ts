@@ -4,7 +4,7 @@ import IAminoClient, {
     IAminoMember,
     IAminoMemberStorage,
     IAminoThreadStorage
-} from './../../index'
+} from "./../../index"
 
 /**
 * Class for working with communities
@@ -29,9 +29,9 @@ export class IAminoCommunity {
     public keywords: string;
 
     private client: IAminoClient;
-    constructor(id: number, client: IAminoClient) {
-        this.id = id;
+    constructor(client: IAminoClient, id: number) {
         this.client = client;
+        this.id = id;
     }
 
     /**
@@ -42,7 +42,7 @@ export class IAminoCommunity {
     public get_online_members(start: number = 0, size: number = 10): { count: number, members: IAminoMemberStorage  } {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
             "headers": {
-                "NDCAUTH": 'sid=' + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
         return { count: response.userProfileCount, members: new IAminoMemberStorage(this.client, response.userProfileList) };
@@ -56,7 +56,7 @@ export class IAminoCommunity {
     public get_chats(start: number = 0, size: number = 10): IAminoThreadStorage {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=joined-me&start=${start}&size=${size}`, {
             "headers": {
-                "NDCAUTH": 'sid=' + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
 
@@ -69,7 +69,7 @@ export class IAminoCommunity {
     public refresh(): IAminoCommunity {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
             "headers": {
-                "NDCAUTH": 'sid=' + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
 
@@ -87,11 +87,8 @@ export class IAminoCommunity {
         this.description = object.community.content;
         this.members_count = object.community.membersCount;
 
-        this.me = new IAminoMember(this.client, this.id, object.currentUserInfo.userProfile.uid);
-        this.me.refresh();
-
-        this.creator = new IAminoMember(this.client, this.id, object.community.agent.uid);
-        this.creator.refresh();
+        this.me = new IAminoMember(this.client, this, object.currentUserInfo.userProfile.uid).refresh();
+        this.creator = new IAminoMember(this.client, this, object.community.agent.uid).refresh();
 
         this.invite = object.community.link;
         this.created_time = object.community.createdTime;
@@ -111,10 +108,10 @@ export class IAminoCommunityStorage extends IAminoStorage<IAminoCommunity> {
         super(client, IAminoCommunityStorage.prototype);
         JSON.parse(request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8")).communityList.forEach(element => {
-            let community = new IAminoCommunity(element.ndcId, this.client);
+            let community = new IAminoCommunity(this.client, element.ndcId);
             community.refresh();
             this.push(community);
         });

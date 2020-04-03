@@ -1,14 +1,15 @@
 import IAminoClient, {
     request,
     IAminoStorage
-} from './../../index'
+} from "./../../index"
+import { IAminoCommunity } from "../community/community";
 
 /**
 * Class for working with members
 */
 export class IAminoMember {
 
-    private community: number;
+    private community: IAminoCommunity;
 
     public id: string;
     public icon: string;
@@ -25,7 +26,7 @@ export class IAminoMember {
     public stories_count: number;
 
     private client: IAminoClient;
-    constructor(client: IAminoClient, communtity?: number, id?: string) {
+    constructor(client: IAminoClient, communtity: IAminoCommunity, id?: string) {
         this.client = client;
         this.community = communtity;
         this.id = id;
@@ -35,9 +36,9 @@ export class IAminoMember {
     * Updating the structure, by re-requesting information from the server
     */
     public refresh(): IAminoMember {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community}/s/user-profile/${this.id}?action=visit`, {
+        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
             "headers": {
-                "NDCAUTH": 'sid=' + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
 

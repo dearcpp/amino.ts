@@ -3,10 +3,11 @@ import IAminoClient, {
     IAminoStorage,
     IAminoMember,
     IAminoMessageStorage,
-    IAminoMessage
-} from './../../index'
+    IAminoMessage,
+    IAminoCommunity
+} from "./../../index"
 
-import * as fs from 'fs';
+import * as fs from "fs";
 
 export enum thread_type {
     private = 0,
@@ -19,7 +20,7 @@ export enum thread_type {
 */
 export class IAminoThread {
 
-    private community: number;
+    public community: IAminoCommunity;
 
     public id: any;
     public icon: string;
@@ -33,12 +34,10 @@ export class IAminoThread {
     public creator: IAminoMember;
 
     private client: IAminoClient;
-    constructor(client: IAminoClient, communtity?: number, id?: string) {
+    constructor(client: IAminoClient, communtity: IAminoCommunity, id?: string) {
         this.client = client;
         this.community = communtity;
         this.id = id;
-
-        this.creator = new IAminoMember(this.client, this.community);
     }
 
     /**
@@ -46,12 +45,12 @@ export class IAminoThread {
     * @param {number} [count] number of messages
     */
     public get_message_list(count: number = 10): IAminoMessageStorage {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
+        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
-        return new IAminoMessageStorage(this.client, response.messageList);
+        return new IAminoMessageStorage(this.client, this.community, response.messageList);
     }
 
     /**
@@ -59,9 +58,9 @@ export class IAminoThread {
     * @param {string} [content] text to be sent
     */
     public send_message(content: string): IAminoMessage {
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.id}/message`, {
+        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             },
 
             "body": JSON.stringify({
@@ -72,7 +71,7 @@ export class IAminoThread {
             })
         }).getBody("utf8"));
 
-        return new IAminoMessage(this.client, response.message, this.community);
+        return new IAminoMessage(this.client, this.community, response.message);
     }
 
     /**
@@ -81,9 +80,9 @@ export class IAminoThread {
     */
     public send_image(image: string): IAminoMessage {
         let encodedImage = fs.readFileSync(image);
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.id}/message`, {
+        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             },
 
             "body": JSON.stringify({
@@ -92,14 +91,14 @@ export class IAminoThread {
 	            "clientRefId": 827027430,
                 "timestamp": new Date().getUTCMilliseconds(),
                 "mediaType": 100,
-                "mediaUploadValue": encodedImage.toString('base64'),
-                "mediaUploadValueContentType": `image/${image.split('.').pop()}`,
+                "mediaUploadValue": encodedImage.toString("base64"),
+                "mediaUploadValueContentType": `image/${image.split(".").pop()}`,
                 "mediaUhqEnabled": false,
                 "attachedObject": null
             })
         }).getBody("utf8"));
 
-        return new IAminoMessage(this.client, response.message, this.community);
+        return new IAminoMessage(this.client, this.community, response.message);
     }
 
     /**
@@ -108,9 +107,9 @@ export class IAminoThread {
     */
     public send_audio(audio: string): IAminoMessage {
         let encodedAudio = fs.readFileSync(audio);
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.id}/message`, {
+        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             },
 
             "body": JSON.stringify({
@@ -128,15 +127,25 @@ export class IAminoThread {
     }
 
     /**
+    * Method for leaving from chat - thread
+    */
+    public leave(): void {
+        let response = JSON.parse(request("DELETE", ` https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.creator.id}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            }
+        }).getBody("utf8"));
+    }
+
+    /**
     * Updating the structure, by re-requesting information from the server
     */
     public refresh(): IAminoThread {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.id}`, {
+        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
             "headers": {
-                "NDCAUTH": 'sid=' + this.client.session_token
+                "NDCAUTH": "sid=" + this.client.session
             }
         }).getBody("utf8"));
-        console.log(response);
         return this._set_object(response.thread);
     }
 
@@ -156,8 +165,7 @@ export class IAminoThread {
 
         this.type = object.type;
 
-        this.creator.id = object.author.uid;
-        this.creator.refresh();
+        this.creator = new IAminoMember(this.client, this.community, object.author.uid).refresh();
 
         return this;
     }

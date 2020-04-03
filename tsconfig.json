@@ -1,0 +1,16 @@
+{
+    "exclude": [
+        "node_modules"
+    ],
+
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "commonjs",
+
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true,
+
+        "rootDir": "src",
+        "outDir": "build"
+    }
+}

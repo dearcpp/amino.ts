@@ -1,21 +1,15 @@
 {
-  "name": "amino.js",
+  "name": "amino.ts",
   "version": "1.0.0",
   "author": "osm1um",
-
   "main": "./build/index.js",
-  "engines": {
-    "node": "10.x"
-  },
-
   "scripts": {
-    "clear": "rm -rf build",
-    "build": "find ./src/* -name *.ts | xargs tsc --outDir build/",
-    "run": "node ."
+    "build": "tsc --project tsconfig.json",
+    "start": "node ."
   },
-
   "dependencies": {
-    "@types/node": "^13.1.4",
-    "sync-request": "^6.1.0"
+    "@types/node": "^13.11.0",
+    "sync-request": "^6.1.0",
+    "ws": "^7.2.3"
   }
 }

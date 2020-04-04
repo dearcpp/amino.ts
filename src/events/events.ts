@@ -1,33 +1,25 @@
-import IAminoClient, {
+import AminoClient, {
     request,
     events,
-    IAminoCommunity,
+    AminoCommunity,
     IAminoCommunityStorage,
     IAminoStorage,
-    IAminoMember,
-    IAminoMessageStorage,
-    IAminoMessage,
+    AminoMember,
+    AminoMessageStorage,
+    AminoMessage,
     IAminoThreadStorage,
-    IAminoThread,
+    AminoThread,
 } from "../index"
 
 const WebSocket = require("ws")
 
-export class IAminoEvent {
-
-};
-
-function io() {
-
-}
-
-export class IAminoEventHandler {
+export default class EventHandler {
 
     public socket: any;
     public emitter: events.EventEmitter;
 
-    private client: IAminoClient;
-    constructor(client: IAminoClient, emitter: events.EventEmitter) {
+    private client: AminoClient;
+    constructor(client: AminoClient, emitter: events.EventEmitter) {
         this.client = client;
         this.emitter = emitter;
 
@@ -42,10 +34,16 @@ export class IAminoEventHandler {
             console.log(error);
         });
 
+        setInterval(() => {
+            this.socket.send(JSON.stringify({ "ping_interval" : 60 }));
+        }, 60000);
+
         this.socket.on("message", function(message) {
             let struct = JSON.parse(message);
             if(struct.t === 1000) {
-                emitter.emit("message", new IAminoMessage(client, new IAminoCommunity(client, struct.o.ndcId).refresh(), struct.o.chatMessage))
+                if(struct.o.chatMessage.type === 0) {
+                    emitter.emit("message", new AminoMessage(client, client.communities.find(community => community.id = struct.o.ndcId), struct.o.chatMessage))
+                }
             }
         });
     }

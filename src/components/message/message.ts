@@ -1,28 +1,31 @@
-import IAminoClient, {
+import AminoClient, {
     request,
     IAminoStorage,
-    IAminoMember,
-    IAminoThread,
-    IAminoCommunity
+    AminoMember,
+    AminoThread,
+    AminoCommunity
 } from "./../../index"
+
+import * as fs from "fs"
+
 
 /**
 * Class for working with messages
 */
-export class IAminoMessage {
+export class AminoMessage {
 
-    public community: IAminoCommunity;
-    public thread: IAminoThread;
+    public community: AminoCommunity;
+    public thread: AminoThread;
 
     public id: string;
     public content: string;
     public createdTime: string;
     public mediaValue: string;
 
-    public author: IAminoMember;
+    public author: AminoMember;
 
-    private client: IAminoClient;
-    constructor(client: IAminoClient, community: IAminoCommunity, message: any) {
+    private client: AminoClient;
+    constructor(client: AminoClient, community: AminoCommunity, message: any) {
         this.client = client;
         this.community = community;
         this._set_object(message);
@@ -32,8 +35,8 @@ export class IAminoMessage {
     * Method for calling the reply message procedure
     * @param {string} [content] text to be sent
     */
-    public reply(content: string) {
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community}/s/chat/thread/${this.thread}/message`, {
+    public reply(content: string): void {
+        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -43,11 +46,9 @@ export class IAminoMessage {
                 "type": 0,
                 "content": content,
 	            "clientRefId": 827027430,
-	            "timestamp": new Date().getUTCMilliseconds()
+                "timestamp": new Date().getUTCMilliseconds()
             })
         }).getBody("utf8"));
-
-        return new IAminoMessage(this.client, response.message, this.community);
     }
 
     /**
@@ -65,15 +66,14 @@ export class IAminoMessage {
     * Method for transferring json structure to a message object
     * @param {any} [object] json message structure
     */
-    public _set_object(object: any): IAminoMessage {
-        this.thread = new IAminoThread(this.client, this.community, object.threadId).refresh();
-
+    public _set_object(object: any): AminoMessage {
         this.id = object.messageId;
         this.content = object.content;
         this.createdTime = object.createdTime
         this.mediaValue = object.mediaValue;
 
-        this.author = new IAminoMember(this.client, this.community, object.author.uid).refresh();
+        this.thread = new AminoThread(this.client, this.community, object.threadId).refresh();
+        this.author = new AminoMember(this.client, this.community, object.uid).refresh();
 
         return this;
     }
@@ -82,11 +82,13 @@ export class IAminoMessage {
 /**
 * Class for storing messages objects
 */
-export class IAminoMessageStorage extends IAminoStorage<IAminoMessage> {
-    constructor(client: IAminoClient, community: IAminoCommunity, array?: any) {
-        super(client, IAminoMessageStorage.prototype);
+export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
+    constructor(client: AminoClient, community: AminoCommunity, array?: any) {
+        super(client, AminoMessageStorage.prototype);
         array.forEach(element => {
-            this.push(new IAminoMessage(client, community, element));
+            this.push(
+                new AminoMessage(client, community, element)
+            );
         });
     }
 };

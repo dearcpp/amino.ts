@@ -8,7 +8,7 @@ The client is written in typescript. If you want to use it, then you will need t
 #### Client initialization
 Initialization of the client is extremely simple.
 ```javascript
-const client = new IAminoClient(
+const client = new AminoClient(
     "address@gmail.com",
     "password",
     "device"

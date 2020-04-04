@@ -1,12 +1,12 @@
 import request from "sync-request"
 
 import IAminoStorage from "./components/storage"
+import EventHandler from "./events/events"
 
-import { IAminoCommunity, IAminoCommunityStorage        } from "./components/community/community"
-import { IAminoMember, IAminoMemberStorage              } from "./components/member/member"
-import { IAminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { IAminoMessage, IAminoMessageStorage            } from "./components/message/message"
-import { IAminoEvent, IAminoEventHandler                } from "./events/events"
+import { AminoCommunity, IAminoCommunityStorage        } from "./components/community/community"
+import { AminoMember, IAminoMemberStorage              } from "./components/member/member"
+import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
+import { AminoMessage, AminoMessageStorage             } from "./components/message/message"
 
 import * as events from 'events'
 
@@ -14,25 +14,25 @@ export {
     request,
     events,
     IAminoStorage,
-    IAminoCommunity,
+    AminoCommunity,
     IAminoCommunityStorage,
-    IAminoMember,
+    AminoMember,
     IAminoMemberStorage,
-    IAminoThread,
-    IAminoThreadStorage,
+    AminoThread,
     thread_type,
-    IAminoMessage,
-    IAminoMessageStorage
+    IAminoThreadStorage,
+    AminoMessage,
+    AminoMessageStorage
 }
 
-export default class IAminoClient {
+export default class AminoClient {
 
     public communities: IAminoCommunityStorage;
 
     public session: string;
     public device: string;
 
-    private event_handler: IAminoEventHandler;
+    private event_handler: EventHandler;
 
     /**
      * Initialization of the main client
@@ -53,7 +53,7 @@ export default class IAminoClient {
             }
         }).getBody("utf8")).sid;
         this.communities = new IAminoCommunityStorage(this);
-        this.event_handler = new IAminoEventHandler(this, new events.EventEmitter());
+        this.event_handler = new EventHandler(this, new events.EventEmitter());
     }
 
     /**

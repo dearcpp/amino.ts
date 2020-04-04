@@ -1,15 +1,15 @@
-import IAminoClient, {
+import AminoClient, {
     request,
     IAminoStorage
 } from "./../../index"
-import { IAminoCommunity } from "../community/community";
+import { AminoCommunity } from "../community/community";
 
 /**
 * Class for working with members
 */
-export class IAminoMember {
+export class AminoMember {
 
-    private community: IAminoCommunity;
+    private community: AminoCommunity;
 
     public id: string;
     public icon: string;
@@ -25,8 +25,8 @@ export class IAminoMember {
     public blogs_count: number;
     public stories_count: number;
 
-    private client: IAminoClient;
-    constructor(client: IAminoClient, communtity: IAminoCommunity, id?: string) {
+    private client: AminoClient;
+    constructor(client: AminoClient, communtity: AminoCommunity, id?: string) {
         this.client = client;
         this.community = communtity;
         this.id = id;
@@ -35,7 +35,7 @@ export class IAminoMember {
     /**
     * Updating the structure, by re-requesting information from the server
     */
-    public refresh(): IAminoMember {
+    public refresh(): AminoMember {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -49,7 +49,7 @@ export class IAminoMember {
     * Method for transferring json structure to a member object
     * @param {any} [object] json member structure
     */
-    public _set_object(object: any): IAminoMember {
+    public _set_object(object: any): AminoMember {
         this.id = object.uid;
         this.icon = object.icon;
         this.name = object.nickname;
@@ -71,13 +71,13 @@ export class IAminoMember {
 /**
 * Class for storing members objects
 */
-export class IAminoMemberStorage extends IAminoStorage<IAminoMember> {
-    constructor(client: IAminoClient, array?: any) {
+export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
+    constructor(client: AminoClient, array?: any) {
         super(client, IAminoMemberStorage.prototype);
         array.forEach(element => {
-            let member = new IAminoMember(client, element.ndcId, element.uid);
-            member._set_object(element);
-            this.push(member);
+            this.push(
+                new AminoMember(client, element.ndcId, element.uid)._set_object(element)
+            );
         });
     }
 };

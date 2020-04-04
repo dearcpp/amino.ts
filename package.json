@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "author": "osm1um",
   "main": "./build/index.js",
+
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "start": "node ."
+    "start": "node .",
+    "dev": "npm run build && npm run start"
   },
+
   "dependencies": {
     "@types/node": "^13.11.0",
     "sync-request": "^6.1.0",

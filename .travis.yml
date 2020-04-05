@@ -1,0 +1,13 @@
+language: node_js
+
+node_js:
+  - 'node'
+  - '13'
+  - '12'
+
+install:
+  - npm install
+
+script:
+  - npm run build
+  - npm run start

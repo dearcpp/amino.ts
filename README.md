@@ -31,12 +31,13 @@ client.communities.forEach(community => {
 #### Event on message
 Everything here is also quite simple.
 ```javascript
-client.on("message", message => {
+client.on("message", (message: AminoMessage) => {
     console.log(message);
 });
 ```
 
 ## Modules
++ `typescript`
 + `@types/node`
 + `sync-request`
 + `ws`

@@ -17,7 +17,7 @@ export enum thread_type {
 };
 
 /**
-* Class for working with chats - threads
+* Class for working with threads
 */
 export class AminoThread {
 
@@ -35,6 +35,13 @@ export class AminoThread {
     public creator: AminoMember;
 
     private client: AminoClient;
+
+    /**
+     * Thread constructor
+     * @param {AminoClient} [client] client object
+     * @param {AminoCommunity} [communtity] communtiy object
+     * @param {string} [id] thread id
+     */
     constructor(client: AminoClient, communtity: AminoCommunity, id?: string) {
         this.client = client;
         this.community = communtity;
@@ -42,7 +49,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for receiving chat - thread messages
+    * Method for receiving thread messages
     * @param {number} [count] number of messages
     */
     public get_message_list(count: number = 10): AminoMessageStorage {
@@ -55,7 +62,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending text messages to chat - thread
+    * Method for sending text messages to thread
     * @param {string} [content] text to be sent
     */
     public send_message(content: string): void {
@@ -74,7 +81,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending images to chat - thread
+    * Method for sending images to thread
     * @param {string} [image] path to image file
     */
     public send_image(image: string): void {
@@ -99,7 +106,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending audio messages to chat - thread
+    * Method for sending audio messages to thread
     * @param {string} [audio] path to audio file
     */
     public send_audio(audio: string): void {
@@ -122,7 +129,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for ban/kick in chat - thread
+    * Method for ban/kick in thread
     * @param {AminoMember} [member] member object
     * @param {boolean} [rejoin] rejoin flag
     */
@@ -139,7 +146,7 @@ export class AminoThread {
     }
 
     /**
-    * Method for leaving from chat - thread
+    * Method for leaving from thread
     */
     public leave(): void {
         let response = JSON.parse(request("DELETE", ` https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.creator.id}`, {
@@ -150,7 +157,7 @@ export class AminoThread {
     }
 
     /**
-    * Updating the structure, by re-requesting information from the server
+    * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoThread {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
@@ -162,8 +169,9 @@ export class AminoThread {
     }
 
     /**
-    * Method for transferring json structure to a chat - thread object
-    * @param {any} [object] json chat - thread structure
+    * Method for transferring json structure to a thread object
+    * @param {any} [object] json thread structure
+    * @param {AminoMember} [creator] creator object
     */
     public _set_object(object: any, creator?: AminoMember): AminoThread {
         this.id = object.threadId;
@@ -184,7 +192,7 @@ export class AminoThread {
 };
 
 /**
-* Class for storing chat - thread objects
+* Class for storing thread objects
 */
 export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
 

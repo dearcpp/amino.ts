@@ -49,7 +49,7 @@ export default class AminoClient {
                 "deviceID": this.device,
                 "clientType": 100,
                 "action": "normal",
-                "timestamp": new Date().getUTCMilliseconds()
+                "timestamp": new Date().getTime()
             }
         }).getBody("utf8")).sid;
         this.communities = new IAminoCommunityStorage(this);

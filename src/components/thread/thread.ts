@@ -4,7 +4,8 @@ import AminoClient, {
     AminoMember,
     AminoMessageStorage,
     AminoMessage,
-    AminoCommunity
+    AminoCommunity,
+    IAminoMemberStorage
 } from "./../../index"
 
 import * as fs from "fs";
@@ -67,7 +68,7 @@ export class AminoThread {
                 "type": 0,
                 "content": content,
 	            "clientRefId": 827027430,
-                "timestamp": new Date().getUTCMilliseconds()
+                "timestamp": new Date().getTime()
             })
         }).getBody("utf8"));
     }
@@ -87,7 +88,7 @@ export class AminoThread {
                 "type": 0,
                 "content": null,
 	            "clientRefId": 827027430,
-                "timestamp": new Date().getUTCMilliseconds(),
+                "timestamp": new Date().getTime(),
                 "mediaType": 100,
                 "mediaUploadValue": encodedImage.toString("base64"),
                 "mediaUploadValueContentType": `image/${image.split(".").pop()}`,
@@ -112,7 +113,7 @@ export class AminoThread {
                 "type": 2,
                 "content": null,
 	            "clientRefId": 827027430,
-                "timestamp": new Date().getUTCMilliseconds(),
+                "timestamp": new Date().getTime(),
                 "mediaType": 110,
                 "mediaUploadValue": encodedAudio,
                 "attachedObject": null
@@ -132,6 +133,8 @@ export class AminoThread {
                     "NDCAUTH": "sid=" + this.client.session
                 }
             }).getBody("utf8"));
+        } else {
+            throw Error("You do not have sufficient permissions to perform this operation.");
         }
     }
 
@@ -162,7 +165,7 @@ export class AminoThread {
     * Method for transferring json structure to a chat - thread object
     * @param {any} [object] json chat - thread structure
     */
-    public _set_object(object: any): AminoThread {
+    public _set_object(object: any, creator?: AminoMember): AminoThread {
         this.id = object.threadId;
 
         this.icon = object.icon;
@@ -174,7 +177,7 @@ export class AminoThread {
 
         this.type = object.type;
 
-        this.creator = new AminoMember(this.client, this.community, object.author.uid).refresh();
+        this.creator = creator !== undefined ? creator : new AminoMember(this.client, this.community, object.author.uid).refresh();
 
         return this;
     }
@@ -184,13 +187,24 @@ export class AminoThread {
 * Class for storing chat - thread objects
 */
 export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
+
+    public member_cache: IAminoMemberStorage;
+
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoThreadStorage.prototype);
-        array.forEach(element => {
-            this.push(
-                new AminoThread(client, community, element)._set_object(element)
-            );
-        });
+        if(array !== undefined) {
+            this.member_cache = new IAminoMemberStorage(client);
+            array.forEach(element => {
+                let member: number = this.member_cache.findIndex(member => member.id === element.author.uid);
+                this.push(
+                    new AminoThread(client, community, element)._set_object(element,
+                        member !== -1 ? this.member_cache[member] : this.member_cache[
+                            this.member_cache.push(new AminoMember(client, community, element.author.uid).refresh())
+                        ]
+                    )
+                );
+            });
+        }
     }
 };
 

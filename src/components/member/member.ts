@@ -74,11 +74,13 @@ export class AminoMember {
 export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, array?: any) {
         super(client, IAminoMemberStorage.prototype);
-        array.forEach(element => {
-            this.push(
-                new AminoMember(client, element.ndcId, element.uid)._set_object(element)
-            );
-        });
+        if(array !== undefined) {
+            array.forEach(element => {
+                this.push(
+                    new AminoMember(client, element.ndcId, element.uid)._set_object(element)
+                );
+            });
+        }
     }
 };
 

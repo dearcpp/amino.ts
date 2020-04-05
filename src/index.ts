@@ -53,7 +53,6 @@ export default class AminoClient {
             }
         }).getBody("utf8")).sid;
         this.communities = new IAminoCommunityStorage(this);
-        this.event_handler = new EventHandler(this, new events.EventEmitter());
     }
 
     /**
@@ -62,6 +61,8 @@ export default class AminoClient {
      * @param {any} [callback] event callback
      */
     public on(event: string, callback: any) {
-        this.event_handler.emitter.on(event, callback);
+        if(this.event_handler === undefined) {
+            this.event_handler = new EventHandler(this, new events.EventEmitter());
+        } this.event_handler.emitter.on(event, callback);
     }
 };

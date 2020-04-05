@@ -13,6 +13,9 @@ import AminoClient, {
 
 const WebSocket = require("ws")
 
+/**
+ * Event handler
+ */
 export default class EventHandler {
 
     public socket: any;

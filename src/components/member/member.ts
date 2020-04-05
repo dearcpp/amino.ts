@@ -26,6 +26,13 @@ export class AminoMember {
     public stories_count: number;
 
     private client: AminoClient;
+
+    /**
+     * Member constructor
+     * @param {AminoClient} [client] client object
+     * @param {AminoCommunity} [communtity] communtiy object
+     * @param {string} [id] member id
+     */
     constructor(client: AminoClient, communtity: AminoCommunity, id?: string) {
         this.client = client;
         this.community = communtity;
@@ -33,7 +40,7 @@ export class AminoMember {
     }
 
     /**
-    * Updating the structure, by re-requesting information from the server
+    * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoMember {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {

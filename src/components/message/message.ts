@@ -24,10 +24,19 @@ export class AminoMessage {
     public author: AminoMember;
 
     private client: AminoClient;
-    constructor(client: AminoClient, community: AminoCommunity, id?: string) {
+
+    /**
+     * Message constructor
+     * @param {AminoClient} [client] client object
+     * @param {AminoCommunity} [communtity] communtiy object
+     * @param {any} [message] json message structure
+     */
+    constructor(client: AminoClient, community: AminoCommunity, message?: any) {
         this.client = client;
         this.community = community;
-        this.id = id;
+        if(message !== undefined) {
+            this._set_object(message);
+        }
     }
 
     /**
@@ -64,6 +73,8 @@ export class AminoMessage {
     /**
     * Method for transferring json structure to a message object
     * @param {any} [object] json message structure
+    * @param {AminoMember} [author] author object
+    * @param {AminoThread} [thread] thread object
     */
     public _set_object(object: any, author?: AminoMember, thread?: AminoThread): AminoMessage {
         this.id = object.messageId;

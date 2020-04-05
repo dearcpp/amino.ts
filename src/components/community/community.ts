@@ -30,6 +30,12 @@ export class AminoCommunity {
     public keywords: string;
 
     private client: AminoClient;
+
+    /**
+     * Community constructor
+     * @param {AminoClient} [client] client object
+     * @param {number} [id] community id
+     */
     constructor(client: AminoClient, id: number) {
         this.client = client;
         this.id = id;
@@ -40,7 +46,7 @@ export class AminoCommunity {
     * @param {number} [start] pointer to the starting index to read the list
     * @param {number} [size] number of records to read
     */
-    public get_online_members(start: number = 0, size: number = 10): { count: number, members: IAminoMemberStorage  } {
+    public get_online_members(start: number = 0, size: number = 10): { count: number, members: IAminoMemberStorage } {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -69,27 +75,27 @@ export class AminoCommunity {
     * @param {AminoMember} [member] member object
     * @param {string} [initial_message] initial message for member
     */
-   public create_thread(member: AminoMember, initial_message: string): AminoThread {
-    let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
-        "headers": {
-            "NDCAUTH": "sid=" + this.client.session
-        },
+    public create_thread(member: AminoMember, initial_message: string): AminoThread {
+        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            },
 
-        "json": {
-            "type": 0,
-            "inviteeUids":[
-                member.id
-            ],
-            "initialMessageContent": initial_message,
-	        "timestamp": new Date().getTime()
-        }
-    }).getBody("utf8"));
+            "json": {
+                "type": 0,
+                "inviteeUids": [
+                    member.id
+                ],
+                "initialMessageContent": initial_message,
+                "timestamp": new Date().getTime()
+            }
+        }).getBody("utf8"));
 
-    return new AminoThread(this.client, this)._set_object(response.thread, this.me);
-}
+        return new AminoThread(this.client, this)._set_object(response.thread, this.me);
+    }
 
     /**
-    * Updating the structure, by re-requesting information from the server
+    * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoCommunity {
         let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
@@ -104,6 +110,8 @@ export class AminoCommunity {
     /**
     * Method for transferring json structure to a community object
     * @param {any} [object] json community structure
+    * @param {AminoMember} [me] me object
+    * @param {AminoMember} [creator] creator object
     */
     public _set_object(object: any, me?: AminoMember, creator?: AminoMember): AminoCommunity {
         this.icon = object.community.icon;

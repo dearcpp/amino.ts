@@ -3,11 +3,10 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     AminoThread,
-    AminoCommunity
+    AminoCommunity,
+    IAminoThreadStorage,
+    IAminoMemberStorage
 } from "./../../index"
-
-import * as fs from "fs"
-
 
 /**
 * Class for working with messages
@@ -25,10 +24,10 @@ export class AminoMessage {
     public author: AminoMember;
 
     private client: AminoClient;
-    constructor(client: AminoClient, community: AminoCommunity, message: any) {
+    constructor(client: AminoClient, community: AminoCommunity, id?: string) {
         this.client = client;
         this.community = community;
-        this._set_object(message);
+        this.id = id;
     }
 
     /**
@@ -46,7 +45,7 @@ export class AminoMessage {
                 "type": 0,
                 "content": content,
 	            "clientRefId": 827027430,
-                "timestamp": new Date().getUTCMilliseconds()
+                "timestamp": new Date().getTime()
             })
         }).getBody("utf8"));
     }
@@ -66,14 +65,14 @@ export class AminoMessage {
     * Method for transferring json structure to a message object
     * @param {any} [object] json message structure
     */
-    public _set_object(object: any): AminoMessage {
+    public _set_object(object: any, author?: AminoMember, thread?: AminoThread): AminoMessage {
         this.id = object.messageId;
         this.content = object.content;
         this.createdTime = object.createdTime
         this.mediaValue = object.mediaValue;
 
-        this.thread = new AminoThread(this.client, this.community, object.threadId).refresh();
-        this.author = new AminoMember(this.client, this.community, object.uid).refresh();
+        this.author = author !== undefined ? author : new AminoMember(this.client, this.community, object.uid).refresh();
+        this.thread = thread !== undefined ? thread : new AminoThread(this.client, this.community, object.threadId).refresh();
 
         return this;
     }
@@ -83,13 +82,30 @@ export class AminoMessage {
 * Class for storing messages objects
 */
 export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
+
+    public member_cache: IAminoMemberStorage;
+    public thread_cache: IAminoThreadStorage;
+
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, AminoMessageStorage.prototype);
-        array.forEach(element => {
-            this.push(
-                new AminoMessage(client, community, element)
-            );
-        });
+        if(array !== undefined) {
+            this.member_cache = new IAminoMemberStorage(client);
+            this.thread_cache = new IAminoThreadStorage(client, community);
+            array.forEach(element => {
+                let member: number = this.member_cache.findIndex(member => member.id === element.uid);
+                let thread: number = this.thread_cache.findIndex(thread => thread.id === element.threadId);
+                this.push(
+                    new AminoMessage(client, community)._set_object(element,
+                        member !== -1 ? this.member_cache[member] : this.member_cache[
+                            this.member_cache.push(new AminoMember(client, community, element.uid).refresh())
+                        ],
+                        thread !== -1 ? this.thread_cache[thread] : this.thread_cache[
+                            this.thread_cache.push(new AminoThread(client, community, element.threadId).refresh())
+                        ]
+                    )
+                );
+            });
+        }
     }
 };
 

@@ -42,7 +42,7 @@ export default class EventHandler {
             let struct = JSON.parse(message);
             if(struct.t === 1000) {
                 if(struct.o.chatMessage.type === 0) {
-                    emitter.emit("message", new AminoMessage(client, client.communities.find(community => community.id = struct.o.ndcId), struct.o.chatMessage))
+                    emitter.emit("message", new AminoMessage(client, client.communities.find(community => community.id = struct.o.ndcId))._set_object(struct.o.chatMessage))
                 }
             }
         });

@@ -65,6 +65,30 @@ export class AminoCommunity {
     }
 
     /**
+    * Method for creating a threads
+    * @param {AminoMember} [member] member object
+    * @param {string} [initial_message] initial message for member
+    */
+   public create_thread(member: AminoMember, initial_message: string): AminoThread {
+    let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
+        "headers": {
+            "NDCAUTH": "sid=" + this.client.session
+        },
+
+        "json": {
+            "type": 0,
+            "inviteeUids":[
+                member.id
+            ],
+            "initialMessageContent": initial_message,
+	        "timestamp": new Date().getTime()
+        }
+    }).getBody("utf8"));
+
+    return new AminoThread(this.client, this)._set_object(response.thread, this.me);
+}
+
+    /**
     * Updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoCommunity {
@@ -81,15 +105,15 @@ export class AminoCommunity {
     * Method for transferring json structure to a community object
     * @param {any} [object] json community structure
     */
-    public _set_object(object: any): AminoCommunity {
+    public _set_object(object: any, me?: AminoMember, creator?: AminoMember): AminoCommunity {
         this.icon = object.community.icon;
         this.name = object.community.name;
         this.tagline = object.community.tagline;
         this.description = object.community.content;
         this.members_count = object.community.membersCount;
 
-        this.me = new AminoMember(this.client, this, object.currentUserInfo.userProfile.uid).refresh();
-        this.creator = new AminoMember(this.client, this, object.community.agent.uid).refresh();
+        this.me = me !== undefined ? me : new AminoMember(this.client, this, object.currentUserInfo.userProfile.uid).refresh();
+        this.creator = creator !== undefined ? creator : new AminoMember(this.client, this, object.community.agent.uid).refresh();
 
         this.invite = object.community.link;
         this.created_time = object.community.createdTime;

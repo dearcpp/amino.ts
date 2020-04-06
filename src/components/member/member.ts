@@ -79,12 +79,12 @@ export class AminoMember {
 * Class for storing members objects
 */
 export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
-    constructor(client: AminoClient, array?: any) {
+    constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMemberStorage.prototype);
         if(array !== undefined) {
             array.forEach(element => {
                 this.push(
-                    new AminoMember(client, element.ndcId, element.uid)._set_object(element)
+                    new AminoMember(client, community, element.uid)._set_object(element)
                 );
             });
         }

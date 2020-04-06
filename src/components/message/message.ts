@@ -100,7 +100,7 @@ export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, AminoMessageStorage.prototype);
         if(array !== undefined) {
-            this.member_cache = new IAminoMemberStorage(client);
+            this.member_cache = new IAminoMemberStorage(client, community);
             this.thread_cache = new IAminoThreadStorage(client, community);
             array.forEach(element => {
                 let member: number = this.member_cache.findIndex(member => member.id === element.uid);

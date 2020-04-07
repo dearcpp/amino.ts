@@ -9,6 +9,8 @@ import AminoClient, {
     AminoMessage
 } from "./../../index"
 
+declare type thread_sort = ('recommended' | 'popular' | 'latest');
+
 /**
 * Class for working with communities
 */
@@ -72,7 +74,7 @@ export class AminoCommunity {
     * @param {number} [start] pointer to the starting index to read the list
     * @param {number} [size] number of records to read
     */
-    public get_threads(start: number = 0, size: number = 10): IAminoThreadStorage {
+    public get_joined_threads(start: number = 0, size: number = 10): IAminoThreadStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=joined-me&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -83,27 +85,18 @@ export class AminoCommunity {
     }
 
     /**
-    * Method for creating a threads
-    * @param {AminoMember} [member] member object
-    * @param {string} [initial_message] initial message for member
+    * Method for getting a list of chat threads
+    * @param {number} [start] pointer to the starting index to read the list
+    * @param {number} [size] number of records to read
     */
-    public create_thread(member: AminoMember, initial_message: string): AminoThread {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
+    public get_public_threads(start: number = 0, size: number = 10, type: thread_sort): IAminoThreadStorage {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=public-all&filterType=${type}&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
-            },
-
-            "json": {
-                "type": 0,
-                "inviteeUids": [
-                    member.id
-                ],
-                "initialMessageContent": initial_message,
-                "timestamp": new Date().getTime()
             }
         });
 
-        return new AminoThread(this.client, this)._set_object(response.thread, this.me);
+        return new IAminoThreadStorage(this.client, this, response.threadList)
     }
 
     /**

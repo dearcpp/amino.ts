@@ -1,8 +1,9 @@
 import AminoClient, {
     request,
-    IAminoStorage
+    IAminoStorage,
+    AminoThread,
+    AminoCommunity,
 } from "./../../index"
-import { AminoCommunity } from "../community/community";
 
 /**
 * Class for working with members
@@ -37,6 +38,30 @@ export class AminoMember {
         this.client = client;
         this.community = communtity;
         this.id = id;
+    }
+
+    /**
+    * Method for creating a thread
+    * @param {AminoMember} [member] member object
+    * @param {string} [initial_message] initial message for member
+    */
+    public make_thread(initial_message: string): AminoThread {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            },
+
+            "json": {
+                "type": 0,
+                "inviteeUids": [
+                    this.id
+                ],
+                "initialMessageContent": initial_message,
+                "timestamp": new Date().getTime()
+            }
+        });
+
+        return new AminoThread(this.client, this.community)._set_object(response.thread, this);
     }
 
     /**

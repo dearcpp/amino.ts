@@ -98,27 +98,27 @@ export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
         if (array !== undefined) {
             let members: AminoMember[] = community.cache.members.get();
             let threads: AminoThread[] = community.cache.threads.get();
-            array.forEach(element => {
+            array.forEach(struct => {
                 let member: AminoMember;
-                let memberIndex: number = members.findIndex(member => member.id === element.uid);
+                let memberIndex: number = members.findIndex(filter => filter.id === struct.uid);
                 if (memberIndex === -1) {
-                    member = new AminoMember(this.client, community, element.uid).refresh();
+                    member = new AminoMember(this.client, community, struct.uid).refresh();
                     community.cache.members.push(member);
                 } else {
                     member = members[memberIndex];
                 }
 
                 let thread: AminoThread;
-                let threadIndex: number = threads.findIndex(thread => thread.id === element.threadId);
+                let threadIndex: number = threads.findIndex(filter => filter.id === struct.threadId);
                 if (threadIndex === -1) {
-                    thread = new AminoThread(this.client, community, element.threadId).refresh();
+                    thread = new AminoThread(this.client, community, struct.threadId).refresh();
                     community.cache.threads.push(thread);
                 } else {
                     thread = threads[threadIndex];
                 }
 
                 this.push(
-                    new AminoMessage(this.client, community)._set_object(element, member, thread)
+                    new AminoMessage(this.client, community)._set_object(struct, member, thread)
                 )
             });
         }

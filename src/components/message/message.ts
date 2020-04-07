@@ -13,8 +13,7 @@ import AminoClient, {
 */
 export class AminoMessage {
 
-    public community: AminoCommunity;
-    public thread: AminoThread;
+    private client: AminoClient;
 
     public id: string;
     public content: string;
@@ -22,8 +21,9 @@ export class AminoMessage {
     public mediaValue: string;
 
     public author: AminoMember;
+    public thread: AminoThread;
 
-    private client: AminoClient;
+    public community: AminoCommunity;
 
     /**
      * Message constructor
@@ -34,7 +34,7 @@ export class AminoMessage {
     constructor(client: AminoClient, community: AminoCommunity, message?: any) {
         this.client = client;
         this.community = community;
-        if(message !== undefined) {
+        if (message !== undefined) {
             this._set_object(message);
         }
     }
@@ -44,7 +44,7 @@ export class AminoMessage {
     * @param {string} [content] text to be sent
     */
     public reply(content: string): void {
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -53,21 +53,21 @@ export class AminoMessage {
                 "replyMessageId": this.id,
                 "type": 0,
                 "content": content,
-	            "clientRefId": 827027430,
+                "clientRefId": 827027430,
                 "timestamp": new Date().getTime()
             })
-        }).getBody("utf8"));
+        });
     }
 
     /**
     * Method for calling the delete message procedure
     */
     public delete(): void {
-        let response = JSON.parse(request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
+        let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
     }
 
     /**
@@ -93,28 +93,33 @@ export class AminoMessage {
 * Class for storing messages objects
 */
 export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
-
-    public member_cache: IAminoMemberStorage;
-    public thread_cache: IAminoThreadStorage;
-
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, AminoMessageStorage.prototype);
-        if(array !== undefined) {
-            this.member_cache = new IAminoMemberStorage(client, community);
-            this.thread_cache = new IAminoThreadStorage(client, community);
+        if (array !== undefined) {
+            let members: AminoMember[] = community.cache.members.get();
+            let threads: AminoThread[] = community.cache.threads.get();
             array.forEach(element => {
-                let member: number = this.member_cache.findIndex(member => member.id === element.uid);
-                let thread: number = this.thread_cache.findIndex(thread => thread.id === element.threadId);
+                let member: AminoMember;
+                let memberIndex: number = members.findIndex(member => member.id === element.uid);
+                if (memberIndex === -1) {
+                    member = new AminoMember(this.client, community, element.uid).refresh();
+                    community.cache.members.push(member);
+                } else {
+                    member = members[memberIndex];
+                }
+
+                let thread: AminoThread;
+                let threadIndex: number = threads.findIndex(thread => thread.id === element.threadId);
+                if (threadIndex === -1) {
+                    thread = new AminoThread(this.client, community, element.threadId).refresh();
+                    community.cache.threads.push(thread);
+                } else {
+                    thread = threads[threadIndex];
+                }
+
                 this.push(
-                    new AminoMessage(client, community)._set_object(element,
-                        member !== -1 ? this.member_cache[member] : this.member_cache[
-                            this.member_cache.push(new AminoMember(client, community, element.uid).refresh())
-                        ],
-                        thread !== -1 ? this.thread_cache[thread] : this.thread_cache[
-                            this.thread_cache.push(new AminoThread(client, community, element.threadId).refresh())
-                        ]
-                    )
-                );
+                    new AminoMessage(this.client, community)._set_object(element, member, thread)
+                )
             });
         }
     }

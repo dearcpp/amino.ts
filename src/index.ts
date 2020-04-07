@@ -1,18 +1,18 @@
-import request from "sync-request"
+import { request } from './request'
 
+import IAminoCache from "./components/cache"
 import IAminoStorage from "./components/storage"
+
 import EventHandler from "./events/events"
 
-import { AminoCommunity, IAminoCommunityStorage        } from "./components/community/community"
-import { AminoMember, IAminoMemberStorage              } from "./components/member/member"
+import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
+import { AminoMember, IAminoMemberStorage } from "./components/member/member"
 import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { AminoMessage, AminoMessageStorage             } from "./components/message/message"
-
-import * as events from 'events'
+import { AminoMessage, AminoMessageStorage } from "./components/message/message"
 
 export {
     request,
-    events,
+    IAminoCache,
     IAminoStorage,
     AminoCommunity,
     IAminoCommunityStorage,
@@ -42,7 +42,7 @@ export default class AminoClient {
      */
     constructor(login: string, password: string, device: string) {
         this.device = device;
-        this.session = JSON.parse(request("POST", `https://service.narvii.com/api/v1/g/s/auth/login`, {
+        this.session = request("POST", `https://service.narvii.com/api/v1/g/s/auth/login`, {
             "json": {
                 "email": login,
                 "secret": "0 " + password,
@@ -51,7 +51,7 @@ export default class AminoClient {
                 "action": "normal",
                 "timestamp": new Date().getTime()
             }
-        }).getBody("utf8")).sid;
+        }).sid;
         this.communities = new IAminoCommunityStorage(this);
     }
 
@@ -61,8 +61,8 @@ export default class AminoClient {
      * @param {any} [callback] event callback
      */
     public on(event: string, callback: any) {
-        if(this.event_handler === undefined) {
-            this.event_handler = new EventHandler(this, new events.EventEmitter());
-        } this.event_handler.emitter.on(event, callback);
+        if (this.event_handler === undefined) {
+            this.event_handler = new EventHandler(this);
+        } this.event_handler.on(event, callback);
     }
 };

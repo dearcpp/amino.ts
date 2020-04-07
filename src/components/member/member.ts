@@ -9,7 +9,7 @@ import { AminoCommunity } from "../community/community";
 */
 export class AminoMember {
 
-    private community: AminoCommunity;
+    private client: AminoClient;
 
     public id: string;
     public icon: string;
@@ -25,7 +25,7 @@ export class AminoMember {
     public blogs_count: number;
     public stories_count: number;
 
-    private client: AminoClient;
+    public community: AminoCommunity;
 
     /**
      * Member constructor
@@ -43,11 +43,11 @@ export class AminoMember {
     * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoMember {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
 
         return this._set_object(response.userProfile)
     }
@@ -81,12 +81,23 @@ export class AminoMember {
 export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMemberStorage.prototype);
-        if(array !== undefined) {
-            array.forEach(element => {
-                this.push(
-                    new AminoMember(client, community, element.uid)._set_object(element)
-                );
+        if (array !== undefined) {
+            array.forEach(member => {
+                community.cache.members.push(this[
+                    this.push(
+                        new AminoMember(this.client, community, member.uid)._set_object(member)
+                    )
+                ]);
             });
+        }
+    }
+
+    /**
+     * Call methods to update in structure objects
+     */
+    public refresh() {
+        for (let i = 0; i < this.length; i++) {
+            this[i].refresh();
         }
     }
 };

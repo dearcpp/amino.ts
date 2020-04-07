@@ -64,14 +64,16 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#aminojs" id="aminojs" style="color: inherit; text-decoration: none;">
-					<h1>amino.js</h1>
+				<a href="#aminots" id="aminots" style="color: inherit; text-decoration: none;">
+					<h1>amino.ts</h1>
 				</a>
+				<p><a href="https://travis-ci.org/osm1um/amino.ts.svg?branch=master"><img src="https://travis-ci.org/osm1um/amino.ts.svg?branch=master" alt="Build Status"></a></p>
 				<p>Unofficial client for working with rest-api aminoapps.</p>
 				<a href="#how-to-use" id="how-to-use" style="color: inherit; text-decoration: none;">
 					<h2>How to Use</h2>
 				</a>
 				<p>The client is written in typescript. If you want to use it, then you will need to install the dependencies and compile the code. You will also need a device identifier, look for it on the Internet, or take your own.</p>
+				<p>We have our own <a href="https://osm1um.github.io/amino.ts/">documentation</a> with which you can quickly figure out what&#39;s what!</p>
 				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
 					<h2>Examples</h2>
 				</a>
@@ -88,10 +90,10 @@
 					<h4>Checking active users</h4>
 				</a>
 				<p>You must be sure that the returned data is not empty. This sometimes happens.</p>
-				<pre><code class="language-javascript">client.communities.forEach(<span class="hljs-function"><span class="hljs-params">community</span> =&gt;</span> {
+				<pre><code class="language-javascript">client.communities.forEach(<span class="hljs-function">(<span class="hljs-params">community: AminoCommunity</span>) =&gt;</span> {
     <span class="hljs-keyword">let</span> members;
     <span class="hljs-keyword">if</span>(members = community.get_online_members(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>).members) {
-        members.forEach(<span class="hljs-function"><span class="hljs-params">member</span> =&gt;</span> {
+        members.forEach(<span class="hljs-function">(<span class="hljs-params">member: AminoMember</span>) =&gt;</span> {
             <span class="hljs-built_in">console</span>.log(member.name);
         });
     }
@@ -101,7 +103,7 @@
 				</a>
 				<p>Everything here is also quite simple.</p>
 				<pre><code class="language-javascript">client.on(<span class="hljs-string">"message"</span>, (message: AminoMessage) =&gt; {
-    <span class="hljs-built_in">console</span>.log(message);
+    message.reply(<span class="hljs-string">`Hi, <span class="hljs-subst">${message.author.name}</span>!`</span>);
 });</code></pre>
 				<a href="#modules" id="modules" style="color: inherit; text-decoration: none;">
 					<h2>Modules</h2>
@@ -119,6 +121,9 @@
 				<ul>
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_components_cache_.html">&quot;components/cache&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_components_community_community_.html">&quot;components/community/community&quot;</a>
@@ -141,6 +146,9 @@
 					<li class=" tsd-kind-module">
 						<a href="modules/_index_.html">&quot;index&quot;</a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_request_.html">&quot;request&quot;</a>
+					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
@@ -155,11 +163,12 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>

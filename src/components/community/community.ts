@@ -1,16 +1,20 @@
 import AminoClient, {
     request,
+    IAminoCache,
     IAminoStorage,
     AminoMember,
     IAminoMemberStorage,
     AminoThread,
-    IAminoThreadStorage
+    IAminoThreadStorage,
+    AminoMessage
 } from "./../../index"
 
 /**
 * Class for working with communities
 */
 export class AminoCommunity {
+
+    private client: AminoClient;
 
     public id: number;
 
@@ -20,23 +24,30 @@ export class AminoCommunity {
     public description: string;
     public members_count: string;
 
-    public me: AminoMember;
-    public creator: AminoMember;
-
     public invite: string;
     public created_time: string;
     public modified_time: string;
 
     public keywords: string;
 
-    private client: AminoClient;
+    public me: AminoMember;
+    public creator: AminoMember;
+
+    public cache: {
+        members: IAminoCache<AminoMember>,
+        threads: IAminoCache<AminoThread>
+    };
 
     /**
-     * Community constructor
-     * @param {AminoClient} [client] client object
-     * @param {number} [id] community id
-     */
+    * Community constructor
+    * @param {AminoClient} [client] client object
+    * @param {number} [id] community id
+    */
     constructor(client: AminoClient, id: number) {
+        this.cache = {
+            members: new IAminoCache<AminoMember>(50),
+            threads: new IAminoCache<AminoThread>(50)
+        }
         this.client = client;
         this.id = id;
     }
@@ -47,12 +58,13 @@ export class AminoCommunity {
     * @param {number} [size] number of records to read
     */
     public get_online_members(start: number = 0, size: number = 10): { count: number, members: IAminoMemberStorage } {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
-        return { count: response.userProfileCount, members: new IAminoMemberStorage(this.client, response.userProfileList) };
+        });
+
+        return { count: response.userProfileCount, members: new IAminoMemberStorage(this.client, this, response.userProfileList) };
     }
 
     /**
@@ -61,11 +73,11 @@ export class AminoCommunity {
     * @param {number} [size] number of records to read
     */
     public get_threads(start: number = 0, size: number = 10): IAminoThreadStorage {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=joined-me&start=${start}&size=${size}`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=joined-me&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
 
         return new IAminoThreadStorage(this.client, this, response.threadList)
     }
@@ -76,7 +88,7 @@ export class AminoCommunity {
     * @param {string} [initial_message] initial message for member
     */
     public create_thread(member: AminoMember, initial_message: string): AminoThread {
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -89,7 +101,7 @@ export class AminoCommunity {
                 "initialMessageContent": initial_message,
                 "timestamp": new Date().getTime()
             }
-        }).getBody("utf8"));
+        });
 
         return new AminoThread(this.client, this)._set_object(response.thread, this.me);
     }
@@ -98,11 +110,11 @@ export class AminoCommunity {
     * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoCommunity {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
 
         return this._set_object(response);
     }
@@ -139,14 +151,30 @@ export class AminoCommunity {
 export class IAminoCommunityStorage extends IAminoStorage<AminoCommunity> {
     constructor(client: AminoClient) {
         super(client, IAminoCommunityStorage.prototype);
-        JSON.parse(request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
+        request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
             "headers": {
-                "NDCAUTH": "sid=" + client.session
+                "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8")).communityList.forEach(element => {
-            this.push(
-                new AminoCommunity(client, element.ndcId).refresh()
-            );
+        }).communityList.forEach(community => {
+            this.push(new AminoCommunity(this.client, community.ndcId).refresh());
+        });
+    }
+
+    /**
+     * Call methods to update in structure objects
+     */
+    public refresh() {
+        request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            }
+        }).communityList.forEach(community => {
+            let identifier: number;
+            if ((identifier = this.findIndex(object => object.id === community.ndcId)) === -1) {
+                this.push(new AminoCommunity(this.client, community.ndcId).refresh());
+            } else {
+                this[identifier].refresh();
+            }
         });
     }
 };

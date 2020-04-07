@@ -36,7 +36,7 @@ client.communities.forEach((community: AminoCommunity) => {
 Everything here is also quite simple.
 ```javascript
 client.on("message", (message: AminoMessage) => {
-    console.log(message);
+    message.reply(`Hi, ${message.author.name}!`);
 });
 ```
 

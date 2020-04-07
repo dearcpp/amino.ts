@@ -21,20 +21,22 @@ export enum thread_type {
 */
 export class AminoThread {
 
-    public community: AminoCommunity;
+    private client: AminoClient;
 
     public id: any;
     public icon: string;
     public title: string;
     public description: string;
+
+    public creator: AminoMember;
+
     public membersQuota: number;
     public membersCount: number;
     public keywords: any;
 
     public type: thread_type;
-    public creator: AminoMember;
 
-    private client: AminoClient;
+    public community: AminoCommunity;
 
     /**
      * Thread constructor
@@ -53,11 +55,11 @@ export class AminoThread {
     * @param {number} [count] number of messages
     */
     public get_message_list(count: number = 10): AminoMessageStorage {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
         return new AminoMessageStorage(this.client, this.community, response.messageList);
     }
 
@@ -66,7 +68,7 @@ export class AminoThread {
     * @param {string} [content] text to be sent
     */
     public send_message(content: string): void {
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -74,10 +76,10 @@ export class AminoThread {
             "body": JSON.stringify({
                 "type": 0,
                 "content": content,
-	            "clientRefId": 827027430,
+                "clientRefId": 827027430,
                 "timestamp": new Date().getTime()
             })
-        }).getBody("utf8"));
+        });
     }
 
     /**
@@ -86,7 +88,7 @@ export class AminoThread {
     */
     public send_image(image: string): void {
         let encodedImage = fs.readFileSync(image);
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -94,7 +96,7 @@ export class AminoThread {
             "body": JSON.stringify({
                 "type": 0,
                 "content": null,
-	            "clientRefId": 827027430,
+                "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 100,
                 "mediaUploadValue": encodedImage.toString("base64"),
@@ -102,7 +104,7 @@ export class AminoThread {
                 "mediaUhqEnabled": false,
                 "attachedObject": null
             })
-        }).getBody("utf8"));
+        });
     }
 
     /**
@@ -111,7 +113,7 @@ export class AminoThread {
     */
     public send_audio(audio: string): void {
         let encodedAudio = fs.readFileSync(audio);
-        let response = JSON.parse(request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -119,13 +121,13 @@ export class AminoThread {
             "body": JSON.stringify({
                 "type": 2,
                 "content": null,
-	            "clientRefId": 827027430,
+                "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 110,
                 "mediaUploadValue": encodedAudio,
                 "attachedObject": null
             })
-        }).getBody("utf8"));
+        });
     }
 
     /**
@@ -134,12 +136,12 @@ export class AminoThread {
     * @param {boolean} [rejoin] rejoin flag
     */
     public ban(member: AminoMember, rejoin: boolean): void {
-        if(this.creator.id === this.community.me.id) {
-            let response = JSON.parse(request("DELETE", `https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
+        if (this.creator.id === this.community.me.id) {
+            let response = request("DELETE", `https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
                 "headers": {
                     "NDCAUTH": "sid=" + this.client.session
                 }
-            }).getBody("utf8"));
+            });
         } else {
             throw Error("You do not have sufficient permissions to perform this operation.");
         }
@@ -149,22 +151,22 @@ export class AminoThread {
     * Method for leaving from thread
     */
     public leave(): void {
-        let response = JSON.parse(request("DELETE", ` https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.creator.id}`, {
+        let response = request("DELETE", ` https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.creator.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
     }
 
     /**
     * Method for updating the structure, by re-requesting information from the server
     */
     public refresh(): AminoThread {
-        let response = JSON.parse(request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).getBody("utf8"));
+        });
         return this._set_object(response.thread);
     }
 
@@ -195,23 +197,47 @@ export class AminoThread {
 * Class for storing thread objects
 */
 export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
-
-    public member_cache: IAminoMemberStorage;
-
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoThreadStorage.prototype);
-        if(array !== undefined) {
-            this.member_cache = new IAminoMemberStorage(client, community);
+        if (array !== undefined) {
+            let members: AminoMember[] = community.cache.members.get();
+            let threads: AminoThread[] = community.cache.threads.get();
             array.forEach(element => {
-                let member: number = this.member_cache.findIndex(member => member.id === element.author.uid);
-                this.push(
-                    new AminoThread(client, community, element)._set_object(element,
-                        member !== -1 ? this.member_cache[member] : this.member_cache[
-                            this.member_cache.push(new AminoMember(client, community, element.author.uid).refresh())
-                        ]
-                    )
-                );
+                let threadIndex: number = threads.findIndex(filter => filter.id === element.threadId);
+                let thread: AminoThread;
+                if (threadIndex === -1) {
+                    thread = new AminoThread(this.client, community, element.threadId).refresh();
+                    community.cache.threads.push(thread);
+                } else {
+                    thread = threads[threadIndex];
+                }
+
+                let memberIndex: number = members.findIndex(filter => filter.id === element.author.uid);
+                let member: AminoMember;
+                if (memberIndex === -1) {
+                    member = new AminoMember(this.client, community, element.author.uid).refresh();
+                    community.cache.members.push(member);
+                } else {
+                    member = members[memberIndex];
+                }
+
+                community.cache.threads.push(
+                    this[
+                        this.push(
+                            new AminoThread(this.client, community, element.threadId)._set_object(thread, member)
+                        )
+                    ]
+                )
             });
+        }
+    }
+
+    /**
+     * Call methods to update in structure objects
+     */
+    public refresh() {
+        for (let i = 0; i < this.length; i++) {
+            this[i].refresh();
         }
     }
 };

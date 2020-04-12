@@ -8,7 +8,7 @@ import EventHandler from "./events/events"
 import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
 import { AminoMember, IAminoMemberStorage } from "./components/member/member"
 import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { AminoMessage, AminoMessageStorage } from "./components/message/message"
+import { AminoMessage, AminoMessageStorage, message_type } from "./components/message/message"
 
 export {
     request,
@@ -22,6 +22,7 @@ export {
     thread_type,
     IAminoThreadStorage,
     AminoMessage,
+    message_type,
     AminoMessageStorage
 }
 

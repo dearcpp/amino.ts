@@ -1,18 +1,13 @@
 import AminoClient, {
-    request,
     AminoCommunity,
-    IAminoCommunityStorage,
-    IAminoStorage,
     AminoMember,
-    AminoMessageStorage,
     AminoMessage,
-    IAminoThreadStorage,
+    message_type,
     AminoThread,
 } from "../index"
-import { connect } from "http2";
 
-const WebSocket = require("ws")
-const events = require("events")
+const WebSocket = require("ws");
+const events = require("events");
 
 /**
  * Event handler
@@ -31,7 +26,7 @@ export default class EventHandler extends events.EventEmitter {
         this.socket.on("message", (message: string) => {
             let struct = JSON.parse(message);
             if (struct.t === 1000) {
-                if (struct.o.chatMessage.type === 0) {
+                if (Object.values(message_type).includes(struct.o.chatMessage.type)) {
                     let community: AminoCommunity = client.communities.find(community => community.id = struct.o.ndcId);
 
                     let members: AminoMember[] = community.cache.members.get();
@@ -63,14 +58,14 @@ export default class EventHandler extends events.EventEmitter {
         });
 
         setInterval(() => {
-            this.socket.send(JSON.stringify({ "ping_interval": 60 }));
-        }, 60000);
+            this.socket.send(JSON.stringify({ "ping_interval": 30 }));
+        }, 30000);
 
         this.socket.on("close", this.close);
     }
 
     public connect() {
-        this.socket = new WebSocket(`wss://ws1.narvii.com/?signbody=${this.client.device}%7C${new Date().getTime()}`, {
+        this.socket = new WebSocket(`wss://ws2.narvii.com/?signbody=${this.client.device}%7C${new Date().getTime()}`, {
             "headers": {
                 "NDCDEVICEID": this.client.device,
                 "NDCAUTH": `sid=${this.client.session}`

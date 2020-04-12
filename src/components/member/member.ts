@@ -107,12 +107,18 @@ export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMemberStorage.prototype);
         if (array !== undefined) {
-            array.forEach(member => {
-                community.cache.members.push(this[
-                    this.push(
-                        new AminoMember(this.client, community, member.uid)._set_object(member)
-                    )
-                ]);
+            let members: AminoMember[] = community.cache.members.get();
+            array.forEach(struct => {
+                let member_index: number = members.findIndex(filter => filter.id === struct.threadId);
+                if (member_index !== -1) {
+                    this.push(members[member_index]);
+                    return;
+                }
+
+                let member = new AminoMember(this.client, community, struct.uid)._set_object(struct);
+                this.push(member);
+                members.push(member);
+                community.cache.members.push(member);
             });
         }
     }

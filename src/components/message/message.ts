@@ -3,10 +3,14 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     AminoThread,
-    AminoCommunity,
-    IAminoThreadStorage,
-    IAminoMemberStorage
+    AminoCommunity
 } from "./../../index"
+
+export enum message_type {
+    COMMON = 0,
+    INVITATION = 103,
+    EXIT = 118
+};
 
 /**
 * Class for working with messages
@@ -19,6 +23,8 @@ export class AminoMessage {
     public content: string;
     public createdTime: string;
     public mediaValue: string;
+
+    public type: message_type;
 
     public author: AminoMember;
     public thread: AminoThread;
@@ -79,8 +85,10 @@ export class AminoMessage {
     public _set_object(object: any, author?: AminoMember, thread?: AminoThread): AminoMessage {
         this.id = object.messageId;
         this.content = object.content;
-        this.createdTime = object.createdTime
+        this.createdTime = object.createdTime;
         this.mediaValue = object.mediaValue;
+
+        this.type = object.type;
 
         this.author = author !== undefined ? author : new AminoMember(this.client, this.community, object.uid).refresh();
         this.thread = thread !== undefined ? thread : new AminoThread(this.client, this.community, object.threadId).refresh();

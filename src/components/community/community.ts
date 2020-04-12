@@ -5,11 +5,11 @@ import AminoClient, {
     AminoMember,
     IAminoMemberStorage,
     AminoThread,
-    IAminoThreadStorage,
-    AminoMessage
+    IAminoThreadStorage
 } from "./../../index"
 
 declare type thread_sort = ('recommended' | 'popular' | 'latest');
+declare type thread_type = ('joined-me' | 'public-all');
 
 /**
 * Class for working with communities
@@ -47,8 +47,8 @@ export class AminoCommunity {
     */
     constructor(client: AminoClient, id: number) {
         this.cache = {
-            members: new IAminoCache<AminoMember>(50),
-            threads: new IAminoCache<AminoThread>(50)
+            members: new IAminoCache<AminoMember>(25),
+            threads: new IAminoCache<AminoThread>(25)
         }
         this.client = client;
         this.id = id;
@@ -74,25 +74,11 @@ export class AminoCommunity {
     * @param {number} [start] pointer to the starting index to read the list
     * @param {number} [size] number of records to read
     */
-    public get_joined_threads(start: number = 0, size: number = 10): IAminoThreadStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=joined-me&start=${start}&size=${size}`, {
+    public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 0, size: number = 10): IAminoThreadStorage {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=${type}&filterType=${sort}&start=${start}&size=${size}`, {
             "headers": {
-                "NDCAUTH": "sid=" + this.client.session
-            }
-        });
-
-        return new IAminoThreadStorage(this.client, this, response.threadList)
-    }
-
-    /**
-    * Method for getting a list of chat threads
-    * @param {number} [start] pointer to the starting index to read the list
-    * @param {number} [size] number of records to read
-    */
-    public get_public_threads(start: number = 0, size: number = 10, type: thread_sort): IAminoThreadStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=public-all&filterType=${type}&start=${start}&size=${size}`, {
-            "headers": {
-                "NDCAUTH": "sid=" + this.client.session
+                "NDCAUTH": "sid=" + this.client.session,
+                "NDCDEVICEID": this.client.device
             }
         });
 
@@ -161,10 +147,10 @@ export class IAminoCommunityStorage extends IAminoStorage<AminoCommunity> {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
-        }).communityList.forEach(community => {
+        }).communityList.forEach(struct => {
             let identifier: number;
-            if ((identifier = this.findIndex(object => object.id === community.ndcId)) === -1) {
-                this.push(new AminoCommunity(this.client, community.ndcId).refresh());
+            if ((identifier = this.findIndex(filter => filter.id === struct.ndcId)) === -1) {
+                this.push(new AminoCommunity(this.client, struct.ndcId).refresh());
             } else {
                 this[identifier].refresh();
             }

@@ -18,10 +18,17 @@ export default class IAminoCache<T> {
     * @param {T[]} [items] new items
     */
     public push(...items: T[]): number {
-        if(this.storage.length + 1 > this.limit) {
+        if (this.storage.length + 1 > this.limit) {
             this.storage.shift();
         }
         return this.storage.push(...items);
+    }
+
+    /**
+    * Get count of elements
+    */
+    public length(): number {
+        return this.storage.length;
     }
 
     /**

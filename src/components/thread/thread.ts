@@ -3,17 +3,15 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     AminoMessageStorage,
-    AminoMessage,
-    AminoCommunity,
-    IAminoMemberStorage
+    AminoCommunity
 } from "./../../index"
 
 import * as fs from "fs";
 
 export enum thread_type {
-    private = 0,
-    group = 1,
-    public = 2
+    PRIVATE = 0,
+    GROUP = 1,
+    PUBLIC = 2
 };
 
 /**
@@ -150,8 +148,19 @@ export class AminoThread {
     /**
     * Method for leaving from thread
     */
+    public join(): void {
+        let response = request("POST", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            }
+        });
+    }
+
+    /**
+    * Method for leaving from thread
+    */
     public leave(): void {
-        let response = request("DELETE", ` https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.creator.id}`, {
+        let response = request("DELETE", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -204,7 +213,7 @@ export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {
                 let thread_index: number = threads.findIndex(filter => filter.id === struct.threadId);
-                if(thread_index !== -1) {
+                if (thread_index !== -1) {
                     this.push(threads[thread_index]);
                     return;
                 }

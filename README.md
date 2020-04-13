@@ -15,7 +15,7 @@ Initialization of the client is extremely simple.
 const client = new AminoClient(
     "address@gmail.com",
     "password",
-    "device"
+    "device_id"
 );
 ```
 
@@ -39,6 +39,30 @@ client.on("message", (message: AminoMessage) => {
     message.reply(`Hi, ${message.author.name}!`);
 });
 ```
+
+## Build
+If you want to use the library, you need to choose one of two ways: compile it and use **javascript**, or write code in **typescript**.
+
+Building a library is extremely simple! Copy the repository and do the following in the directory:
+```bash
+npm install # Installing dependencies
+npm run build # Building typescript code
+```
+
+After build is complete, you will see the **build** directory. This directory contains the compiled library. Note that it needs **node_modules** dependencies!
+
+After you can use this library:
+```javascript
+const Amino = require("./path/to/the/build/index");
+
+let client = new Amino.default(
+    "address@gmail.com",
+    "password",
+    "device_id"
+);
+```
+
+If you want to use **typescript**, then create your own configuration for building and including **index.ts**.
 
 ## Modules
 + `typescript`

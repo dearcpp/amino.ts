@@ -13,8 +13,8 @@ export enum message_type {
 };
 
 /**
-* Class for working with messages
-*/
+ * Class for working with messages
+ */
 export class AminoMessage {
 
     private client: AminoClient;
@@ -46,9 +46,9 @@ export class AminoMessage {
     }
 
     /**
-    * Method for calling the reply message procedure
-    * @param {string} [content] text to be sent
-    */
+     * Method for calling the reply message procedure
+     * @param {string} [content] text to be sent
+     */
     public reply(content: string): void {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
             "headers": {
@@ -66,8 +66,8 @@ export class AminoMessage {
     }
 
     /**
-    * Method for calling the delete message procedure
-    */
+     * Method for calling the delete message procedure
+     */
     public delete(): void {
         let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
             "headers": {
@@ -77,11 +77,11 @@ export class AminoMessage {
     }
 
     /**
-    * Method for transferring json structure to a message object
-    * @param {any} [object] json message structure
-    * @param {AminoMember} [author] author object
-    * @param {AminoThread} [thread] thread object
-    */
+     * Method for transferring json structure to a message object
+     * @param {any} [object] json message structure
+     * @param {AminoMember} [author] author object
+     * @param {AminoThread} [thread] thread object
+     */
     public _set_object(object: any, author?: AminoMember, thread?: AminoThread): AminoMessage {
         this.id = object.messageId;
         this.content = object.content;
@@ -98,8 +98,8 @@ export class AminoMessage {
 };
 
 /**
-* Class for storing messages objects
-*/
+ * Class for storing messages objects
+ */
 export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, AminoMessageStorage.prototype);

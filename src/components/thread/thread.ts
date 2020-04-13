@@ -15,8 +15,8 @@ export enum thread_type {
 };
 
 /**
-* Class for working with threads
-*/
+ * Class for working with threads
+ */
 export class AminoThread {
 
     private client: AminoClient;
@@ -49,9 +49,9 @@ export class AminoThread {
     }
 
     /**
-    * Method for receiving thread messages
-    * @param {number} [count] number of messages
-    */
+     * Method for receiving thread messages
+     * @param {number} [count] number of messages
+     */
     public get_message_list(count: number = 10): AminoMessageStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
             "headers": {
@@ -62,10 +62,11 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending text messages to thread
-    * @param {string} [content] text to be sent
-    */
-    public send_message(content: string): void {
+     * Method for sending text messages to thread
+     * @param {string} [content] text to be sent
+     * @param {string} [image] path to the image
+     */
+    public send_message(content: string, image?: string): void {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -81,11 +82,44 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending images to thread
-    * @param {string} [image] path to image file
-    */
+     * Method for sending text messages to thread
+     * @param {string} [content] text to be sent
+     * @param {{path: string, link: string }} [image] extension structure
+     */
+    public send_extension(content: string, extension: {
+        path: string,
+        link: string
+    }): void {
+        let file: Buffer = fs.readFileSync(extension.path);
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            },
+
+            "body": JSON.stringify({
+                "type": 0,
+                "content": content,
+                "clientRefId": 827027430,
+                "timestamp": new Date().getTime(),
+                "attachedObject": null,
+                "extensions": {
+                    "linkSnippetList": [{
+                        "link": extension.link,
+                        "mediaType": 100,
+                        "mediaUploadValue": file.toString("base64"),
+                        "mediaUploadValueContentType": `image/${extension.path.split(".").pop()}`
+                    }]
+                }
+            })
+        });
+    }
+
+    /**
+     * Method for sending images to thread
+     * @param {string} [image] path to image file
+     */
     public send_image(image: string): void {
-        let encodedImage = fs.readFileSync(image);
+        let file: Buffer = fs.readFileSync(image);
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -97,7 +131,7 @@ export class AminoThread {
                 "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 100,
-                "mediaUploadValue": encodedImage.toString("base64"),
+                "mediaUploadValue": file.toString("base64"),
                 "mediaUploadValueContentType": `image/${image.split(".").pop()}`,
                 "mediaUhqEnabled": false,
                 "attachedObject": null
@@ -106,11 +140,11 @@ export class AminoThread {
     }
 
     /**
-    * Method for sending audio messages to thread
-    * @param {string} [audio] path to audio file
-    */
+     * Method for sending audio messages to thread
+     * @param {string} [audio] path to audio file
+     */
     public send_audio(audio: string): void {
-        let encodedAudio = fs.readFileSync(audio);
+        let file = fs.readFileSync(audio);
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -122,17 +156,17 @@ export class AminoThread {
                 "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 110,
-                "mediaUploadValue": encodedAudio,
+                "mediaUploadValue": file,
                 "attachedObject": null
             })
         });
     }
 
     /**
-    * Method for ban/kick in thread
-    * @param {AminoMember} [member] member object
-    * @param {boolean} [rejoin] rejoin flag
-    */
+     * Method for ban/kick in thread
+     * @param {AminoMember} [member] member object
+     * @param {boolean} [rejoin] rejoin flag
+     */
     public ban(member: AminoMember, rejoin: boolean): void {
         if (this.creator.id === this.community.me.id) {
             let response = request("DELETE", `https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
@@ -146,8 +180,8 @@ export class AminoThread {
     }
 
     /**
-    * Method for leaving from thread
-    */
+     * Method for leaving from thread
+     */
     public join(): void {
         let response = request("POST", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
             "headers": {
@@ -157,8 +191,8 @@ export class AminoThread {
     }
 
     /**
-    * Method for leaving from thread
-    */
+     * Method for leaving from thread
+     */
     public leave(): void {
         let response = request("DELETE", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
             "headers": {
@@ -168,8 +202,8 @@ export class AminoThread {
     }
 
     /**
-    * Method for updating the structure, by re-requesting information from the server
-    */
+     * Method for updating the structure, by re-requesting information from the server
+     */
     public refresh(): AminoThread {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
             "headers": {
@@ -180,10 +214,10 @@ export class AminoThread {
     }
 
     /**
-    * Method for transferring json structure to a thread object
-    * @param {any} [object] json thread structure
-    * @param {AminoMember} [creator] creator object
-    */
+     * Method for transferring json structure to a thread object
+     * @param {any} [object] json thread structure
+     * @param {AminoMember} [creator] creator object
+     */
     public _set_object(object: any, creator?: AminoMember): AminoThread {
         this.id = object.threadId;
 
@@ -203,8 +237,8 @@ export class AminoThread {
 };
 
 /**
-* Class for storing thread objects
-*/
+ * Class for storing thread objects
+ */
 export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoThreadStorage.prototype);

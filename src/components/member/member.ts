@@ -6,8 +6,8 @@ import AminoClient, {
 } from "./../../index"
 
 /**
-* Class for working with members
-*/
+ * Class for working with members
+ */
 export class AminoMember {
 
     private client: AminoClient;
@@ -41,10 +41,10 @@ export class AminoMember {
     }
 
     /**
-    * Method for creating a thread
-    * @param {AminoMember} [member] member object
-    * @param {string} [initial_message] initial message for member
-    */
+     * Method for creating a thread
+     * @param {AminoMember} [member] member object
+     * @param {string} [initial_message] initial message for member
+     */
     public make_thread(initial_message: string): AminoThread {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread`, {
             "headers": {
@@ -65,8 +65,8 @@ export class AminoMember {
     }
 
     /**
-    * Method for updating the structure, by re-requesting information from the server
-    */
+     * Method for updating the structure, by re-requesting information from the server
+     */
     public refresh(): AminoMember {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
             "headers": {
@@ -78,9 +78,9 @@ export class AminoMember {
     }
 
     /**
-    * Method for transferring json structure to a member object
-    * @param {any} [object] json member structure
-    */
+     * Method for transferring json structure to a member object
+     * @param {any} [object] json member structure
+     */
     public _set_object(object: any): AminoMember {
         this.id = object.uid;
         this.icon = object.icon;
@@ -101,8 +101,8 @@ export class AminoMember {
 };
 
 /**
-* Class for storing members objects
-*/
+ * Class for storing members objects
+ */
 export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMemberStorage.prototype);

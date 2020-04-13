@@ -12,8 +12,8 @@ declare type thread_sort = ('recommended' | 'popular' | 'latest');
 declare type thread_type = ('joined-me' | 'public-all');
 
 /**
-* Class for working with communities
-*/
+ * Class for working with communities
+ */
 export class AminoCommunity {
 
     private client: AminoClient;
@@ -41,10 +41,10 @@ export class AminoCommunity {
     };
 
     /**
-    * Community constructor
-    * @param {AminoClient} [client] client object
-    * @param {number} [id] community id
-    */
+     * Community constructor
+     * @param {AminoClient} [client] client object
+     * @param {number} [id] community id
+     */
     constructor(client: AminoClient, id: number) {
         this.cache = {
             members: new IAminoCache<AminoMember>(25),
@@ -55,10 +55,10 @@ export class AminoCommunity {
     }
 
     /**
-    * Method for getting the number of users online, as well as objects of the users themselves
-    * @param {number} [start] pointer to the starting index to read the list
-    * @param {number} [size] number of records to read
-    */
+     * Method for getting the number of users online, as well as objects of the users themselves
+     * @param {number} [start] pointer to the starting index to read the list
+     * @param {number} [size] number of records to read
+     */
     public get_online_members(start: number = 0, size: number = 10): { count: number, members: IAminoMemberStorage } {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
             "headers": {
@@ -70,10 +70,10 @@ export class AminoCommunity {
     }
 
     /**
-    * Method for getting a list of chat threads
-    * @param {number} [start] pointer to the starting index to read the list
-    * @param {number} [size] number of records to read
-    */
+     * Method for getting a list of chat threads
+     * @param {number} [start] pointer to the starting index to read the list
+     * @param {number} [size] number of records to read
+     */
     public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 0, size: number = 10): IAminoThreadStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=${type}&filterType=${sort}&start=${start}&size=${size}`, {
             "headers": {
@@ -86,8 +86,8 @@ export class AminoCommunity {
     }
 
     /**
-    * Method for updating the structure, by re-requesting information from the server
-    */
+     * Method for updating the structure, by re-requesting information from the server
+     */
     public refresh(): AminoCommunity {
         let response = request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
             "headers": {
@@ -99,11 +99,11 @@ export class AminoCommunity {
     }
 
     /**
-    * Method for transferring json structure to a community object
-    * @param {any} [object] json community structure
-    * @param {AminoMember} [me] me object
-    * @param {AminoMember} [creator] creator object
-    */
+     * Method for transferring json structure to a community object
+     * @param {any} [object] json community structure
+     * @param {AminoMember} [me] me object
+     * @param {AminoMember} [creator] creator object
+     */
     public _set_object(object: any, me?: AminoMember, creator?: AminoMember): AminoCommunity {
         this.icon = object.community.icon;
         this.name = object.community.name;
@@ -125,8 +125,8 @@ export class AminoCommunity {
 };
 
 /**
-* Class for storing community objects
-*/
+ * Class for storing community objects
+ */
 export class IAminoCommunityStorage extends IAminoStorage<AminoCommunity> {
     constructor(client: AminoClient) {
         super(client, IAminoCommunityStorage.prototype);

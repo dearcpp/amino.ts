@@ -3,7 +3,7 @@ import { request } from './request'
 import IAminoCache from "./components/cache"
 import IAminoStorage from "./components/storage"
 
-import EventHandler from "./events/events"
+import EventHandler, { event_type } from "./events/events"
 
 import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
 import { AminoMember, IAminoMemberStorage } from "./components/member/member"
@@ -61,7 +61,7 @@ export default class AminoClient {
      * @param {string} [event] event name
      * @param {any} [callback] event callback
      */
-    public on(event: string, callback: any) {
+    public on(event: event_type, callback: any) {
         if (this.event_handler === undefined) {
             this.event_handler = new EventHandler(this);
         } this.event_handler.on(event, callback);

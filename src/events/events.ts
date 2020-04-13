@@ -3,11 +3,16 @@ import AminoClient, {
     AminoMember,
     AminoMessage,
     message_type,
-    AminoThread,
+    AminoThread
 } from "../index"
 
-const WebSocket = require("ws");
-const events = require("events");
+
+const debug: boolean = (process.argv.includes("--events-debug") || process.argv.includes("-ed"));
+
+import WebSocket = require("ws");
+import events = require("events");
+
+export declare type event_type = ('message');
 
 /**
  * Event handler
@@ -25,6 +30,7 @@ export default class EventHandler extends events.EventEmitter {
 
         this.socket.on("message", (message: string) => {
             let struct = JSON.parse(message);
+            if (debug) console.log(`[SOCKET]: RESPONSE : ${message}`);
             if (struct.t === 1000) {
                 if (Object.values(message_type).includes(struct.o.chatMessage.type)) {
                     let community: AminoCommunity = client.communities.find(community => community.id = struct.o.ndcId);
@@ -58,12 +64,15 @@ export default class EventHandler extends events.EventEmitter {
         });
 
         setInterval(() => {
-            this.socket.send(JSON.stringify({ "ping_interval": 30 }));
+            this.socket.send();
         }, 30000);
 
         this.socket.on("close", this.close);
     }
 
+    /**
+     * Socket connect
+     */
     public connect() {
         this.socket = new WebSocket(`wss://ws2.narvii.com/?signbody=${this.client.device}%7C${new Date().getTime()}`, {
             "headers": {
@@ -73,6 +82,9 @@ export default class EventHandler extends events.EventEmitter {
         });
     }
 
+    /**
+     * Socket disconnect
+     */
     private close() {
         console.log("[amino.ts]: Socket connection lost!");
         process.exit(-1);

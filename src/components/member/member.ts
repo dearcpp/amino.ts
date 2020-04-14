@@ -3,6 +3,7 @@ import AminoClient, {
     IAminoStorage,
     AminoThread,
     AminoCommunity,
+    IAminoBlogStorage
 } from "./../../index"
 
 /**
@@ -32,7 +33,7 @@ export class AminoMember {
      * Member constructor
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [communtity] communtiy object
-     * @param {string} [id] member id
+     * @param {string} [id?] member id
      */
     constructor(client: AminoClient, communtity: AminoCommunity, id?: string) {
         this.client = client;
@@ -42,10 +43,9 @@ export class AminoMember {
 
     /**
      * Method for creating a thread
-     * @param {AminoMember} [member] member object
      * @param {string} [initial_message] initial message for member
      */
-    public make_thread(initial_message: string): AminoThread {
+    public create_thread(initial_message: string): AminoThread {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -62,6 +62,21 @@ export class AminoMember {
         });
 
         return new AminoThread(this.client, this.community)._set_object(response.thread, this);
+    }
+
+    /**
+     * Method for getting recent member blogs
+     * @param {number} [start] start position
+     * @param {number} [size] number of blogs to read
+     */
+    public get_recent_blogs(start: number = 0, size: number = 10): IAminoBlogStorage {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog?type=user&q=${this.id}&start=${start}&size=${size}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            }
+        });
+
+        return new IAminoBlogStorage(this.client, this.community, response.blogList);
     }
 
     /**

@@ -8,7 +8,9 @@ import EventHandler, { event_type } from "./events/events"
 import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
 import { AminoMember, IAminoMemberStorage } from "./components/member/member"
 import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { AminoMessage, AminoMessageStorage, message_type } from "./components/message/message"
+import { AminoMessage, IAminoMessageStorage, message_type } from "./components/message/message"
+import { AminoBlog, IAminoBlogStorage } from "./components/blog/blog"
+import { AminoComment, IAminoCommentStorage } from "./components/comment/comment"
 
 export {
     request,
@@ -23,7 +25,11 @@ export {
     IAminoThreadStorage,
     AminoMessage,
     message_type,
-    AminoMessageStorage
+    IAminoMessageStorage,
+    AminoBlog,
+    IAminoBlogStorage,
+    AminoComment,
+    IAminoCommentStorage
 }
 
 export default class AminoClient {

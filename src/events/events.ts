@@ -86,7 +86,7 @@ export default class EventHandler extends events.EventEmitter {
      * Socket disconnect
      */
     private close() {
-        console.log("[amino.ts]: Socket connection lost!");
+        if (debug) console.log("[SOCKET]: CLOSE : Socket connection lost!");
         process.exit(-1);
     }
 };

@@ -35,7 +35,7 @@ export class AminoMessage {
      * Message constructor
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [communtity] communtiy object
-     * @param {any} [message] json message structure
+     * @param {any} [message?] json message structure
      */
     constructor(client: AminoClient, community: AminoCommunity, message?: any) {
         this.client = client;
@@ -100,29 +100,31 @@ export class AminoMessage {
 /**
  * Class for storing messages objects
  */
-export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
+export class IAminoMessageStorage extends IAminoStorage<AminoMessage> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, AminoMessageStorage.prototype);
+        super(client, IAminoMessageStorage.prototype);
         if (array !== undefined) {
             let members: AminoMember[] = community.cache.members.get();
             let threads: AminoThread[] = community.cache.threads.get();
             array.forEach(struct => {
                 let member: AminoMember;
                 let memberIndex: number = members.findIndex(filter => filter.id === struct.uid);
-                if (memberIndex === -1) {
+                if (memberIndex !== -1) {
+                    member = members[memberIndex];
+                } else {
                     member = new AminoMember(this.client, community, struct.uid).refresh();
                     community.cache.members.push(member);
-                } else {
-                    member = members[memberIndex];
+                    members.push(member);
                 }
 
                 let thread: AminoThread;
                 let threadIndex: number = threads.findIndex(filter => filter.id === struct.threadId);
-                if (threadIndex === -1) {
+                if (threadIndex !== -1) {
+                    thread = threads[threadIndex];
+                } else {
                     thread = new AminoThread(this.client, community, struct.threadId).refresh();
                     community.cache.threads.push(thread);
-                } else {
-                    thread = threads[threadIndex];
+                    threads.push(thread);
                 }
 
                 this.push(

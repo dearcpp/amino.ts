@@ -8,6 +8,8 @@ import AminoClient, {
 
 import * as fs from "fs";
 
+declare type image_type = ('image/png' | 'image/jpg');
+
 export enum thread_type {
     PRIVATE = 0,
     GROUP = 1,
@@ -87,10 +89,10 @@ export class AminoThread {
      * @param {{path: string, link: string }} [image] extension structure
      */
     public send_extension(content: string, extension: {
-        path: string,
+        image: Buffer,
+        type: image_type,
         link: string
     }): void {
-        let file: Buffer = fs.readFileSync(extension.path);
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -106,8 +108,8 @@ export class AminoThread {
                     "linkSnippetList": [{
                         "link": extension.link,
                         "mediaType": 100,
-                        "mediaUploadValue": file.toString("base64"),
-                        "mediaUploadValueContentType": `image/${extension.path.split(".").pop()}`
+                        "mediaUploadValue": extension.image.toString("base64"),
+                        "mediaUploadValueContentType": extension.type
                     }]
                 }
             })
@@ -116,10 +118,10 @@ export class AminoThread {
 
     /**
      * Method for sending images to thread
-     * @param {string} [image] path to image file
+     * @param {string} [image] buffer with image
+     * @param {image_type} [type] image type
      */
-    public send_image(image: string): void {
-        let file: Buffer = fs.readFileSync(image);
+    public send_image(image: Buffer, type: image_type): void {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -131,8 +133,8 @@ export class AminoThread {
                 "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 100,
-                "mediaUploadValue": file.toString("base64"),
-                "mediaUploadValueContentType": `image/${image.split(".").pop()}`,
+                "mediaUploadValue": image.toString("base64"),
+                "mediaUploadValueContentType": type,
                 "mediaUhqEnabled": false,
                 "attachedObject": null
             })
@@ -169,7 +171,7 @@ export class AminoThread {
      */
     public ban(member: AminoMember, rejoin: boolean): void {
         if (this.creator.id === this.community.me.id) {
-            let response = request("DELETE", `https://service.narvii.com:443/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
+            let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
                 "headers": {
                     "NDCAUTH": "sid=" + this.client.session
                 }
@@ -242,7 +244,7 @@ export class AminoThread {
 export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoThreadStorage.prototype);
-        if (array !== undefined) {
+        if (array) {
             let threads: AminoThread[] = community.cache.threads.get();
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {

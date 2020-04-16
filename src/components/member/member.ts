@@ -121,7 +121,7 @@ export class AminoMember {
 export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMemberStorage.prototype);
-        if (array !== undefined) {
+        if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {
                 let member_index: number = members.findIndex(filter => filter.id === struct.threadId);

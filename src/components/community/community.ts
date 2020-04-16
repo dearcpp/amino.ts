@@ -9,6 +9,7 @@ import AminoClient, {
     IAminoBlogStorage
 } from "./../../index"
 
+declare type blog_type = ('featured-more' | 'featured' | 'blog-all');
 declare type thread_sort = ('recommended' | 'popular' | 'latest');
 declare type thread_type = ('joined-me' | 'public-all');
 
@@ -71,12 +72,13 @@ export class AminoCommunity {
     }
 
     /**
-     * Method for getting recent community blogs
+     * Method for getting community blogs
+     * @param {blog_type} [type] type of blogs
      * @param {number} [start] start position
      * @param {number} [size] number of blogs to read
      */
-    public get_recent_blogs(start: number = 1, size: number = 10): IAminoBlogStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/feed/blog-all?start=${start}&size=${size}`, {
+    public get_blogs(type: blog_type, start: number = 1, size: number = 10): IAminoBlogStorage {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/feed/${type}?start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -92,7 +94,7 @@ export class AminoCommunity {
      * @param {number} [size] number of records to read
      * @param {thread_sort} [sort] sorting type
      */
-    public get_threads(type: thread_type, start: number = 1, size: number = 10, sort: thread_sort = "latest"): IAminoThreadStorage {
+    public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 1, size: number = 10): IAminoThreadStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=${type}&filterType=${sort}&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session,

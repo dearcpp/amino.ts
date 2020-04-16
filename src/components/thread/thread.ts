@@ -68,7 +68,7 @@ export class AminoThread {
      * @param {string} [content] text to be sent
      * @param {string} [image] path to the image
      */
-    public send_message(content: string, image?: string): void {
+    public send_message(content: string): void {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session

@@ -12,7 +12,7 @@ We have our own [documentation](https://osm1um.github.io/amino.ts/) with which y
 #### Client initialization
 Initialization of the client is extremely simple.
 ```javascript
-const client = new AminoClient(
+let client: AminoClient = new AminoClient(
     "address@gmail.com",
     "password",
     "device_id"
@@ -23,12 +23,10 @@ const client = new AminoClient(
 You must be sure that the returned data is not empty. This sometimes happens.
 ```javascript
 client.communities.forEach((community: AminoCommunity) => {
-    let members;
-    if(members = community.get_online_members(0, 10).members) {
-        members.forEach((member: AminoMember) => {
-            console.log(member.name);
-        });
-    }
+    let members: IAminoMemberStorage = community.get_online_members(0, 10);
+    members.forEach((member: AminoMember) => {
+        console.log(member.name);
+    });
 });
 ```
 

@@ -88,11 +88,11 @@ export class AminoCommunity {
     /**
      * Method for getting a list of chat threads
      * @param {thread_type} [type] number of records to read
-     * @param {thread_sort} [sort] sorting type
      * @param {number} [start] pointer to the starting index to read the list
      * @param {number} [size] number of records to read
+     * @param {thread_sort} [sort] sorting type
      */
-    public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 1, size: number = 10): IAminoThreadStorage {
+    public get_threads(type: thread_type, start: number = 1, size: number = 10, sort: thread_sort = "latest"): IAminoThreadStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=${type}&filterType=${sort}&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session,

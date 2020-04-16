@@ -53,7 +53,7 @@ After build is complete, you will see the **build** directory. This directory co
 
 After you can use this library:
 ```javascript
-const Amino = require("./path/to/the/build/index");
+const Amino = require("@amino.ts/path/to/the/build/index");
 
 let client = new Amino.default(
     "address@gmail.com",

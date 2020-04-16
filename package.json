@@ -6,7 +6,7 @@
   "homepage": "https://github.com/osm1um/amino.ts/#readme",
 
   "author": "osm1um",
-  "main": "./build/index.js",
+  "main": "build/index.js",
 
   "scripts": {
     "build": "tsc --project tsconfig.json",

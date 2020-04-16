@@ -35,13 +35,15 @@ export class AminoMessage {
      * Message constructor
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [communtity] communtiy object
-     * @param {any} [message?] json message structure
+     * @param {AminoThread} [thread] thread object
+     * @param {any} [struct] message structure
      */
-    constructor(client: AminoClient, community: AminoCommunity, message?: any) {
+    constructor(client: AminoClient, community: AminoCommunity, thread?: AminoThread, struct?: any) {
         this.client = client;
         this.community = community;
-        if (message !== undefined) {
-            this._set_object(message);
+        this.thread = thread;
+        if (struct !== undefined) {
+            this._set_object(struct);
         }
     }
 
@@ -103,14 +105,14 @@ export class AminoMessage {
 export class IAminoMessageStorage extends IAminoStorage<AminoMessage> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
         super(client, IAminoMessageStorage.prototype);
-        if (array !== undefined) {
+        if (array) {
             let members: AminoMember[] = community.cache.members.get();
             let threads: AminoThread[] = community.cache.threads.get();
             array.forEach(struct => {
                 let member: AminoMember;
-                let memberIndex: number = members.findIndex(filter => filter.id === struct.uid);
-                if (memberIndex !== -1) {
-                    member = members[memberIndex];
+                let member_index: number = members.findIndex(filter => filter.id === struct.uid);
+                if (member_index !== -1) {
+                    member = members[member_index];
                 } else {
                     member = new AminoMember(this.client, community, struct.uid).refresh();
                     community.cache.members.push(member);
@@ -118,9 +120,9 @@ export class IAminoMessageStorage extends IAminoStorage<AminoMessage> {
                 }
 
                 let thread: AminoThread;
-                let threadIndex: number = threads.findIndex(filter => filter.id === struct.threadId);
-                if (threadIndex !== -1) {
-                    thread = threads[threadIndex];
+                let thread_index: number = threads.findIndex(filter => filter.id === struct.threadId);
+                if (thread_index !== -1) {
+                    thread = threads[thread_index];
                 } else {
                     thread = new AminoThread(this.client, community, struct.threadId).refresh();
                     community.cache.threads.push(thread);

@@ -1,4 +1,4 @@
-import { request } from './request'
+import { request } from "./request"
 
 import IAminoCache from "./components/cache"
 import IAminoStorage from "./components/storage"
@@ -16,20 +16,20 @@ export {
     request,
     IAminoCache,
     IAminoStorage,
-    AminoCommunity,
     IAminoCommunityStorage,
-    AminoMember,
+    AminoCommunity,
     IAminoMemberStorage,
+    AminoMember,
+    IAminoThreadStorage,
     AminoThread,
     thread_type,
-    IAminoThreadStorage,
+    IAminoMessageStorage,
     AminoMessage,
     message_type,
-    IAminoMessageStorage,
-    AminoBlog,
     IAminoBlogStorage,
-    AminoComment,
-    IAminoCommentStorage
+    AminoBlog,
+    IAminoCommentStorage,
+    AminoComment
 }
 
 export default class AminoClient {
@@ -62,14 +62,10 @@ export default class AminoClient {
         this.communities = new IAminoCommunityStorage(this);
     }
 
-    /**
-     * Set callback to event
-     * @param {string} [event] event name
-     * @param {any} [callback] event callback
-     */
     public on(event: event_type, callback: any) {
         if (this.event_handler === undefined) {
             this.event_handler = new EventHandler(this);
-        } this.event_handler.on(event, callback);
+        }
+        this.event_handler.on(event, callback);
     }
 };

@@ -39,7 +39,7 @@ export class AminoComment {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoComment {
-        let response = request("GET", `https://service.narvii.com:443/api/v1/x${this.id}/s/blog/${this.blog.id}/comment/${this.id}`, {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/blog/${this.blog.id}/comment/${this.id}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -69,7 +69,7 @@ export class AminoComment {
 export class IAminoCommentStorage extends IAminoStorage<AminoComment> {
     constructor(client: AminoClient, community: AminoCommunity, blog: AminoBlog, array?: any) {
         super(client, IAminoCommentStorage.prototype);
-        if (array !== undefined) {
+        if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {
                 let member_index: number = members.findIndex(filter => filter.id === struct.author.uid);

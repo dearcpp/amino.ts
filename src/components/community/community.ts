@@ -57,6 +57,40 @@ export class AminoCommunity {
     }
 
     /**
+     * Set account nickname
+     * @param {string} [nickname] string
+     */
+    public set_nickname(nickname: string) {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/user-profile/${this.me.id}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            },
+
+            "body": JSON.stringify({
+                "nickname": nickname,
+                "timestamp": new Date().getTime()
+            })
+        });
+    }
+
+    /**
+     * Set account description
+     * @param {string} [description] string
+     */
+    public set_description(description: string) {
+        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/user-profile/${this.me.id}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            },
+
+            "body": JSON.stringify({
+                "content": description,
+                "timestamp": new Date().getTime()
+            })
+        });
+    }
+
+    /**
      * Method for getting the number of users online, as well as objects of the users themselves
      * @param {number} [start] pointer to the starting index to read the list
      * @param {number} [size] number of records to read

@@ -26,7 +26,7 @@ export class AminoComment {
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [community] amino community
      * @param {AminoBlog} [blog] community blog
-     * @param {string} [id?] comment id
+     * @param {string} [id] comment id
      */
     constructor(client: AminoClient, community: AminoCommunity, blog: AminoBlog, id?: string) {
         this.client = client;

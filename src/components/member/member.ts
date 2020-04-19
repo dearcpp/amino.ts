@@ -33,7 +33,7 @@ export class AminoMember {
      * Member constructor
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [communtity] communtiy object
-     * @param {string} [id?] member id
+     * @param {string} [id] member id
      */
     constructor(client: AminoClient, communtity: AminoCommunity, id?: string) {
         this.client = client;

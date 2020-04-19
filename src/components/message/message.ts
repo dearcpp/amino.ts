@@ -25,6 +25,7 @@ export class AminoMessage {
     public mediaValue: string;
 
     public type: message_type;
+    public reply_message: AminoMessage;
 
     public author: AminoMember;
     public thread: AminoThread;
@@ -36,15 +37,13 @@ export class AminoMessage {
      * @param {AminoClient} [client] client object
      * @param {AminoCommunity} [communtity] communtiy object
      * @param {AminoThread} [thread] thread object
-     * @param {any} [struct] message structure
+     * @param {any} [id] message id
      */
-    constructor(client: AminoClient, community: AminoCommunity, thread?: AminoThread, struct?: any) {
+    constructor(client: AminoClient, community: AminoCommunity, thread?: AminoThread, id?: string) {
         this.client = client;
         this.community = community;
         this.thread = thread;
-        if (struct !== undefined) {
-            this._set_object(struct);
-        }
+        this.id = id;
     }
 
     /**
@@ -79,12 +78,25 @@ export class AminoMessage {
     }
 
     /**
+     * Method for updating the structure, by re-requesting information from the server
+     */
+    public refresh(): AminoMessage {
+        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
+            "headers": {
+                "NDCAUTH": "sid=" + this.client.session
+            }
+        });
+
+        return this._set_object(response.message);
+    }
+
+    /**
      * Method for transferring json structure to a message object
      * @param {any} [object] json message structure
      * @param {AminoMember} [author] author object
      * @param {AminoThread} [thread] thread object
      */
-    public _set_object(object: any, author?: AminoMember, thread?: AminoThread): AminoMessage {
+    public _set_object(object: any, thread?: AminoThread, author?: AminoMember): AminoMessage {
         this.id = object.messageId;
         this.content = object.content;
         this.createdTime = object.createdTime;
@@ -94,6 +106,10 @@ export class AminoMessage {
 
         this.author = author !== undefined ? author : new AminoMember(this.client, this.community, object.uid).refresh();
         this.thread = thread !== undefined ? thread : new AminoThread(this.client, this.community, object.threadId).refresh();
+
+        if (object.extensions.replyMessageId !== undefined) {
+            this.reply_message = new AminoMessage(this.client, this.community, this.thread, object.extensions.replyMessageId);
+        }
 
         return this;
     }
@@ -130,8 +146,8 @@ export class IAminoMessageStorage extends IAminoStorage<AminoMessage> {
                 }
 
                 this.push(
-                    new AminoMessage(this.client, community)._set_object(struct, member, thread)
-                )
+                    new AminoMessage(this.client, community)._set_object(struct, thread, member)
+                );
             });
         }
     }

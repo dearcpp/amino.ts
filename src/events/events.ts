@@ -78,7 +78,7 @@ export default class EventHandler extends Events.EventEmitter {
                         }
 
                         this.emit("message",
-                            new AminoMessage(ref_client, community)._set_object(struct.o.chatMessage, member, thread)
+                            new AminoMessage(ref_client, community)._set_object(struct.o.chatMessage, thread, member)
                         );
                     }
                     break;

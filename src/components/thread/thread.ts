@@ -170,13 +170,13 @@ export class AminoThread {
      * @param {boolean} [rejoin] rejoin flag
      */
     public ban(member: AminoMember, rejoin: boolean): void {
-        if (this.creator.id === this.community.me.id) {
+        try {
             let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
                 "headers": {
                     "NDCAUTH": "sid=" + this.client.session
                 }
             });
-        } else {
+        } catch {
             throw Error("You do not have sufficient permissions to perform this operation.");
         }
     }

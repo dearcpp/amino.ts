@@ -50,7 +50,7 @@ export class AminoMessage {
      * Method for calling the reply message procedure
      * @param {string} [content] text to be sent
      */
-    public reply(content: string): void {
+    public reply(content: string): AminoMessage {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -64,6 +64,8 @@ export class AminoMessage {
                 "timestamp": new Date().getTime()
             })
         });
+
+        return new AminoMessage(this.client, this.community)._set_object(response.message, this.thread, this.community.me);
     }
 
     /**

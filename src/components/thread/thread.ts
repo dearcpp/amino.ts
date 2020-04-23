@@ -3,7 +3,8 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     IAminoMessageStorage,
-    AminoCommunity
+    AminoCommunity,
+    AminoMessage
 } from "./../../index"
 
 import * as fs from "fs";
@@ -60,6 +61,7 @@ export class AminoThread {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
+
         return new IAminoMessageStorage(this.client, this.community, response.messageList);
     }
 
@@ -68,7 +70,7 @@ export class AminoThread {
      * @param {string} [content] text to be sent
      * @param {string} [image] path to the image
      */
-    public send_message(content: string): void {
+    public send_message(content: string): AminoMessage {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -81,6 +83,8 @@ export class AminoThread {
                 "timestamp": new Date().getTime()
             })
         });
+
+        return new AminoMessage(this.client, this.community, this)._set_object(response.message, this, this.community.me);
     }
 
     /**
@@ -92,7 +96,7 @@ export class AminoThread {
         image: Buffer,
         type: image_type,
         link: string
-    }): void {
+    }): AminoMessage {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -114,6 +118,8 @@ export class AminoThread {
                 }
             })
         });
+
+        return new AminoMessage(this.client, this.community, this)._set_object(response.message, this, this.community.me);
     }
 
     /**
@@ -121,7 +127,7 @@ export class AminoThread {
      * @param {string} [image] buffer with image
      * @param {image_type} [type] image type
      */
-    public send_image(image: Buffer, type: image_type): void {
+    public send_image(image: Buffer, type: image_type): AminoMessage {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -139,14 +145,15 @@ export class AminoThread {
                 "attachedObject": null
             })
         });
+
+        return new AminoMessage(this.client, this.community, this)._set_object(response.message, this, this.community.me);
     }
 
     /**
      * Method for sending audio messages to thread
      * @param {string} [audio] path to audio file
      */
-    public send_audio(audio: string): void {
-        let file = fs.readFileSync(audio);
+    public send_audio(audio: Buffer): AminoMessage {
         let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
@@ -158,27 +165,12 @@ export class AminoThread {
                 "clientRefId": 827027430,
                 "timestamp": new Date().getTime(),
                 "mediaType": 110,
-                "mediaUploadValue": file,
+                "mediaUploadValue": audio,
                 "attachedObject": null
             })
         });
-    }
 
-    /**
-     * Method for ban/kick in thread
-     * @param {AminoMember} [member] member object
-     * @param {boolean} [rejoin] rejoin flag
-     */
-    public ban(member: AminoMember, rejoin: boolean): void {
-        try {
-            let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${member.id}?allowRejoin=${Number(rejoin)}`, {
-                "headers": {
-                    "NDCAUTH": "sid=" + this.client.session
-                }
-            });
-        } catch {
-            throw Error("You do not have sufficient permissions to perform this operation.");
-        }
+        return new AminoMessage(this.client, this.community, this)._set_object(response.message, this, this.community.me);
     }
 
     /**

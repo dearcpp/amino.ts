@@ -1,12 +1,12 @@
 # amino.ts
-[![Build Status](https://travis-ci.org/osm1um/amino.ts.svg?branch=master)](https://travis-ci.org/osm1um/amino.ts.svg?branch=master)
+[![Build Status](https://travis-ci.org/beryll1um/amino.ts.svg?branch=master)](https://travis-ci.org/beryll1um/amino.ts.svg?branch=master)
 
 Unofficial client for working with rest-api aminoapps.
 
 ## How to Use
 The client is written in typescript. If you want to use it, then you will need to install the dependencies and compile the code. You will also need a device identifier, look for it on the Internet, or take your own.
 
-We have our own [documentation](https://osm1um.github.io/amino.ts/) with which you can quickly figure out what's what!
+We have our own [documentation](https://beryll1um.github.io/amino.ts/) with which you can quickly figure out what's what!
 
 ## Examples
 #### Client initialization

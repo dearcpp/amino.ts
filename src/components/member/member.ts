@@ -3,7 +3,7 @@ import AminoClient, {
     IAminoStorage,
     AminoThread,
     AminoCommunity,
-    IAminoBlogStorage
+    AminoBlogStorage
 } from "./../../index"
 
 /**
@@ -69,14 +69,14 @@ export class AminoMember {
      * @param {number} [start] start position
      * @param {number} [size] number of blogs to read
      */
-    public get_recent_blogs(start: number = 0, size: number = 10): IAminoBlogStorage {
+    public get_recent_blogs(start: number = 0, size: number = 10): AminoBlogStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog?type=user&q=${this.id}&start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoBlogStorage(this.client, this.community, response.blogList);
+        return new AminoBlogStorage(this.client, this.community, response.blogList);
     }
 
     /**
@@ -118,9 +118,9 @@ export class AminoMember {
 /**
  * Class for storing members objects
  */
-export class IAminoMemberStorage extends IAminoStorage<AminoMember> {
+export class AminoMemberStorage extends IAminoStorage<AminoMember> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoMemberStorage.prototype);
+        super(client, AminoMemberStorage.prototype);
         if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {

@@ -3,7 +3,7 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     AminoCommunity,
-    IAminoCommentStorage
+    AminoCommentStorage
 } from "./../../index"
 
 /**
@@ -43,14 +43,14 @@ export class AminoBlog {
      * @param {number} [start] start position
      * @param {number} [size] count by start
      */
-    public get_comments(start: number = 1, size: number = 10): IAminoCommentStorage {
+    public get_comments(start: number = 1, size: number = 10): AminoCommentStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog/${this.id}/comment?start=${start}&size=${size}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoCommentStorage(this.client, this.community, this, response.commentList);
+        return new AminoCommentStorage(this.client, this.community, this, response.commentList);
     }
 
     /**
@@ -95,9 +95,9 @@ export class AminoBlog {
 /**
  * Class for storing blog objects
  */
-export class IAminoBlogStorage extends IAminoStorage<AminoBlog> {
+export class AminoBlogStorage extends IAminoStorage<AminoBlog> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoBlogStorage.prototype);
+        super(client, AminoBlogStorage.prototype);
         if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {

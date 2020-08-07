@@ -66,9 +66,9 @@ export class AminoComment {
 /**
  * Class for storing comment objects
  */
-export class IAminoCommentStorage extends IAminoStorage<AminoComment> {
+export class AminoCommentStorage extends IAminoStorage<AminoComment> {
     constructor(client: AminoClient, community: AminoCommunity, blog: AminoBlog, array?: any) {
-        super(client, IAminoCommentStorage.prototype);
+        super(client, AminoCommentStorage.prototype);
         if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {

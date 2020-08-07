@@ -5,36 +5,36 @@ import IAminoStorage from "./components/storage"
 
 import EventHandler, { event_type } from "./events/events"
 
-import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
-import { AminoMember, IAminoMemberStorage } from "./components/member/member"
-import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { AminoMessage, IAminoMessageStorage, message_type } from "./components/message/message"
-import { AminoBlog, IAminoBlogStorage } from "./components/blog/blog"
-import { AminoComment, IAminoCommentStorage } from "./components/comment/comment"
+import { AminoCommunity, AminoCommunityStorage as AminoCommunityStorage } from "./components/community/community"
+import { AminoMember, AminoMemberStorage } from "./components/member/member"
+import { AminoThread, AminoThreadStorage, thread_type } from "./components/thread/thread"
+import { AminoMessage, AminoMessageStorage, message_type } from "./components/message/message"
+import { AminoBlog, AminoBlogStorage } from "./components/blog/blog"
+import { AminoComment, AminoCommentStorage } from "./components/comment/comment"
 
 export {
     request,
     IAminoCache,
     IAminoStorage,
-    IAminoCommunityStorage,
+    AminoCommunityStorage,
     AminoCommunity,
-    IAminoMemberStorage,
+    AminoMemberStorage,
     AminoMember,
-    IAminoThreadStorage,
+    AminoThreadStorage,
     AminoThread,
     thread_type,
-    IAminoMessageStorage,
+    AminoMessageStorage,
     AminoMessage,
     message_type,
-    IAminoBlogStorage,
+    AminoBlogStorage,
     AminoBlog,
-    IAminoCommentStorage,
+    AminoCommentStorage,
     AminoComment
 }
 
 export default class AminoClient {
 
-    public communities: IAminoCommunityStorage;
+    public communities: AminoCommunityStorage;
 
     public session: string;
     public device: string;
@@ -59,7 +59,7 @@ export default class AminoClient {
                 "timestamp": new Date().getTime()
             }
         }).sid;
-        this.communities = new IAminoCommunityStorage(this);
+        this.communities = new AminoCommunityStorage(this);
     }
 
     public on(event: event_type, callback: any) {

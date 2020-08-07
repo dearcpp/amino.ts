@@ -2,7 +2,7 @@ import AminoClient, {
     request,
     IAminoStorage,
     AminoMember,
-    IAminoMessageStorage,
+    AminoMessageStorage,
     AminoCommunity,
     AminoMessage
 } from "./../../index"
@@ -55,14 +55,14 @@ export class AminoThread {
      * Method for receiving thread messages
      * @param {number} [count] number of messages
      */
-    public get_message_list(count: number = 10): IAminoMessageStorage {
+    public get_message_list(count: number = 10): AminoMessageStorage {
         let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoMessageStorage(this.client, this.community, response.messageList);
+        return new AminoMessageStorage(this.client, this.community, response.messageList);
     }
 
     /**
@@ -233,9 +233,9 @@ export class AminoThread {
 /**
  * Class for storing thread objects
  */
-export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
+export class AminoThreadStorage extends IAminoStorage<AminoThread> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoThreadStorage.prototype);
+        super(client, AminoThreadStorage.prototype);
         if (array) {
             let threads: AminoThread[] = community.cache.threads.get();
             let members: AminoMember[] = community.cache.members.get();

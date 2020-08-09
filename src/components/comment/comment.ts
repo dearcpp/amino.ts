@@ -5,7 +5,7 @@ import AminoClient, {
     AminoCommunity,
     AminoBlog
 } from "./../../index"
-
+import {APIEndpoint} from "../APIEndpoint"
 /**
  * Class for working with comments
  */
@@ -39,7 +39,7 @@ export class AminoComment {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoComment {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/blog/${this.blog.id}/comment/${this.id}`, {
+        let response = request("GET", APIEndpoint.CompileGetComent(this.id,this.blog.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }

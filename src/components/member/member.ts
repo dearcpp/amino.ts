@@ -5,7 +5,7 @@ import AminoClient, {
     AminoCommunity,
     AminoBlogStorage
 } from "./../../index"
-
+import { APIEndpoint } from "../APIEndpoint"
 /**
  * Class for working with members
  */
@@ -46,7 +46,7 @@ export class AminoMember {
      * @param {string} [initial_message] initial message for member
      */
     public create_thread(initial_message: string): AminoThread {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread`, {
+        let response = request("POST", APIEndpoint.CompileCreateThread(this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -70,7 +70,8 @@ export class AminoMember {
      * @param {number} [size] number of blogs to read
      */
     public get_recent_blogs(start: number = 0, size: number = 10): AminoBlogStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog?type=user&q=${this.id}&start=${start}&size=${size}`, {
+        
+        let response = request("GET", APIEndpoint.CompileGetRecentBlogs(this.id,this.community.id,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -83,7 +84,7 @@ export class AminoMember {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoMember {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/user-profile/${this.id}?action=visit`, {
+        let response = request("GET", APIEndpoint.CompileGetMember(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }

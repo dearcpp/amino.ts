@@ -5,7 +5,7 @@ import AminoClient, {
     AminoCommunity,
     AminoCommentStorage
 } from "./../../index"
-
+import {APIEndpoint} from "../APIEndpoint"
 /**
  * Class for working with blogs
  */
@@ -44,7 +44,8 @@ export class AminoBlog {
      * @param {number} [size] count by start
      */
     public get_comments(start: number = 1, size: number = 10): AminoCommentStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog/${this.id}/comment?start=${start}&size=${size}`, {
+        
+        let response = request("GET", APIEndpoint.CompileGetComents(this.id,this.community.id,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -57,7 +58,7 @@ export class AminoBlog {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoBlog {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog/${this.id}`, {
+        let response = request("GET", APIEndpoint.CompileGetBlog(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }

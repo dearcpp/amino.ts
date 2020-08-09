@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@types/node": "^13.11.0",
+    "node-fetch": "^2.6.0",
     "sync-request": "^6.1.0",
     "typescript": "^3.8.3",
     "ws": "^7.2.3"

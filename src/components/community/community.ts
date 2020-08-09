@@ -3,15 +3,16 @@ import AminoClient, {
     IAminoCache,
     IAminoStorage,
     AminoMember,
-    IAminoMemberStorage,
+    AminoMemberStorage,
     AminoThread,
-    IAminoThreadStorage,
-    IAminoBlogStorage
+    AminoThreadStorage,
+    AminoBlogStorage,
+    requestAsync
 } from "./../../index"
-
-declare type blog_type = ('featured-more' | 'featured' | 'blog-all');
-declare type thread_sort = ('recommended' | 'popular' | 'latest');
-declare type thread_type = ('joined-me' | 'public-all');
+import { APIEndpoint } from "../APIEndpoint"
+export declare type blog_type = ('featured-more' | 'featured' | 'blog-all');
+export declare type thread_sort = ('recommended' | 'popular' | 'latest');
+export declare type thread_type = ('joined-me' | 'public-all');
 
 /**
  * Class for working with communities
@@ -61,7 +62,7 @@ export class AminoCommunity {
      * @param {string} [nickname] string
      */
     public set_nickname(nickname: string) {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/user-profile/${this.me.id}`, {
+        let response = request("POST", APIEndpoint.CompileProfile(this.id,this.me.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -77,8 +78,8 @@ export class AminoCommunity {
      * Set account description
      * @param {string} [description] string
      */
-    public set_description(description: string) {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.id}/s/user-profile/${this.me.id}`, {
+    public async set_description(description: string) : Promise<any> {
+        return await requestAsync("POST", APIEndpoint.CompileProfile(this.id,this.me.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -95,14 +96,14 @@ export class AminoCommunity {
      * @param {number} [start] pointer to the starting index to read the list
      * @param {number} [size] number of records to read
      */
-    public get_online_members(start: number = 0, size: number = 10): IAminoMemberStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/live-layer?topic=ndtopic%3Ax${this.id}%3Aonline-members&start=${start}&size=${size}`, {
+    public get_online_members(start: number = 0, size: number = 10): AminoMemberStorage {
+        let response = request("GET", APIEndpoint.CompileGetOnlineMembers(this.id,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoMemberStorage(this.client, this, response.userProfileList);
+        return new AminoMemberStorage(this.client, this, response.userProfileList);
     }
 
     /**
@@ -111,14 +112,15 @@ export class AminoCommunity {
      * @param {number} [start] start position
      * @param {number} [size] number of blogs to read
      */
-    public get_blogs(type: blog_type, start: number = 1, size: number = 10): IAminoBlogStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/feed/${type}?start=${start}&size=${size}`, {
+    public get_blogs(type: blog_type, start: number = 1, size: number = 10): AminoBlogStorage {
+        
+        let response = request("GET", APIEndpoint.CompileGetBlogs(this.id,type,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoBlogStorage(this.client, this, response.blogList);
+        return new AminoBlogStorage(this.client, this, response.blogList);
     }
 
     /**
@@ -128,22 +130,23 @@ export class AminoCommunity {
      * @param {number} [size] number of records to read
      * @param {thread_sort} [sort] sorting type
      */
-    public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 1, size: number = 10): IAminoThreadStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.id}/s/chat/thread?type=${type}&filterType=${sort}&start=${start}&size=${size}`, {
+    public get_threads(type: thread_type, sort: thread_sort = "latest", start: number = 1, size: number = 10): AminoThreadStorage {
+        let response = request("GET", APIEndpoint.CompileGetThreads(this.id,type,sort,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session,
                 "NDCDEVICEID": this.client.device
             }
         });
 
-        return new IAminoThreadStorage(this.client, this, response.threadList)
+        return new AminoThreadStorage(this.client, this, response.threadList)
     }
 
     /**
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoCommunity {
-        let response = request("GET", `https://service.narvii.com/api/v1/g/s-x${this.id}/community/info`, {
+        
+        let response = request("GET", APIEndpoint.CompileGetCommunity(this.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -181,10 +184,10 @@ export class AminoCommunity {
 /**
  * Class for storing community objects
  */
-export class IAminoCommunityStorage extends IAminoStorage<AminoCommunity> {
+export class AminoCommunityStorage extends IAminoStorage<AminoCommunity> {
     constructor(client: AminoClient) {
-        super(client, IAminoCommunityStorage.prototype);
-        request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
+        super(client, AminoCommunityStorage.prototype);
+        request("GET", APIEndpoint.JoiniedCommunities, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -197,7 +200,7 @@ export class IAminoCommunityStorage extends IAminoStorage<AminoCommunity> {
      * Call methods to update in structure objects
      */
     public refresh() {
-        request("GET", `https://service.narvii.com/api/v1/g/s/community/joined`, {
+        request("GET", APIEndpoint.JoiniedCommunities, {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }

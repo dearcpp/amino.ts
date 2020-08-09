@@ -2,20 +2,17 @@
   "name": "amino.ts",
   "description": "Unofficial client for working with rest-api aminoapps",
   "version": "1.0.0",
-
   "homepage": "https://github.com/osm1um/amino.ts/#readme",
-
   "author": "osm1um",
   "main": "build/index.js",
-
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "start": "node .",
     "test": "node . --requests-debug"
   },
-
   "dependencies": {
     "@types/node": "^13.11.0",
+    "node-fetch": "^2.6.0",
     "sync-request": "^6.1.0",
     "typescript": "^3.8.3",
     "ws": "^7.2.3"

@@ -5,7 +5,7 @@ import AminoClient, {
     AminoThread,
     AminoCommunity
 } from "./../../index"
-
+import { APIEndpoint } from "../APIEndpoint"
 export enum message_type {
     COMMON = 0,
     INVITATION = 103,
@@ -51,7 +51,7 @@ export class AminoMessage {
      * @param {string} [content] text to be sent
      */
     public reply(content: string): AminoMessage {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message`, {
+        let response = request("POST", APIEndpoint.CompileMessage(this.thread.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -72,7 +72,7 @@ export class AminoMessage {
      * Method for calling the delete message procedure
      */
     public delete(): void {
-        let response = request("DELETE", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
+        let response = request("DELETE", APIEndpoint.CompileMessageWithId(this.id,this.thread.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -83,7 +83,7 @@ export class AminoMessage {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoMessage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.thread.id}/message/${this.id}`, {
+        let response = request("GET", APIEndpoint.CompileMessageWithId(this.id,this.thread.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -120,9 +120,9 @@ export class AminoMessage {
 /**
  * Class for storing messages objects
  */
-export class IAminoMessageStorage extends IAminoStorage<AminoMessage> {
+export class AminoMessageStorage extends IAminoStorage<AminoMessage> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoMessageStorage.prototype);
+        super(client, AminoMessageStorage.prototype);
         if (array) {
             let members: AminoMember[] = community.cache.members.get();
             let threads: AminoThread[] = community.cache.threads.get();

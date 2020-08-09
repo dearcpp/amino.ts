@@ -1,45 +1,48 @@
-import { request } from "./request"
-
+import { request,requestAsync } from "./request"
 import IAminoCache from "./components/cache"
 import IAminoStorage from "./components/storage"
 
 import EventHandler, { event_type } from "./events/events"
 
-import { AminoCommunity, IAminoCommunityStorage } from "./components/community/community"
-import { AminoMember, IAminoMemberStorage } from "./components/member/member"
-import { AminoThread, IAminoThreadStorage, thread_type } from "./components/thread/thread"
-import { AminoMessage, IAminoMessageStorage, message_type } from "./components/message/message"
-import { AminoBlog, IAminoBlogStorage } from "./components/blog/blog"
-import { AminoComment, IAminoCommentStorage } from "./components/comment/comment"
+import { AminoCommunity, AminoCommunityStorage as AminoCommunityStorage } from "./components/community/community"
+import { AminoMember, AminoMemberStorage } from "./components/member/member"
+import { AminoThread, AminoThreadStorage, thread_type } from "./components/thread/thread"
+import { AminoMessage, AminoMessageStorage, message_type } from "./components/message/message"
+import { AminoBlog, AminoBlogStorage } from "./components/blog/blog"
+import { AminoComment, AminoCommentStorage } from "./components/comment/comment"
+import { APIEndpoint } from "./components/APIEndpoint"
 
 export {
     request,
+    requestAsync,
     IAminoCache,
     IAminoStorage,
-    IAminoCommunityStorage,
+    AminoCommunityStorage,
     AminoCommunity,
-    IAminoMemberStorage,
+    AminoMemberStorage,
     AminoMember,
-    IAminoThreadStorage,
+    AminoThreadStorage,
     AminoThread,
     thread_type,
-    IAminoMessageStorage,
+    AminoMessageStorage,
     AminoMessage,
     message_type,
-    IAminoBlogStorage,
+    AminoBlogStorage,
     AminoBlog,
-    IAminoCommentStorage,
-    AminoComment
+    AminoCommentStorage,
+    AminoComment,
+    AminoClient,
+    APIEndpoint
 }
 
 export default class AminoClient {
 
-    public communities: IAminoCommunityStorage;
+    public communities: AminoCommunityStorage;
 
     public session: string;
     public device: string;
 
-    private event_handler: EventHandler;
+    private _eventHandler: EventHandler;
 
     /**
      * Initialization of the main client
@@ -49,7 +52,7 @@ export default class AminoClient {
      */
     constructor(login: string, password: string, device: string) {
         this.device = device;
-        this.session = request("POST", `https://service.narvii.com/api/v1/g/s/auth/login`, {
+        this.session = request("POST", APIEndpoint.Login, {
             "json": {
                 "email": login,
                 "secret": "0 " + password,
@@ -59,13 +62,19 @@ export default class AminoClient {
                 "timestamp": new Date().getTime()
             }
         }).sid;
-        this.communities = new IAminoCommunityStorage(this);
+        this.communities = new AminoCommunityStorage(this);
     }
-
+    
     public on(event: event_type, callback: any) {
-        if (this.event_handler === undefined) {
-            this.event_handler = new EventHandler(this);
+        if (this._eventHandler === undefined) {
+            this._eventHandler = new EventHandler(this);
         }
-        this.event_handler.on(event, callback);
+        this._eventHandler.on(event, callback);
+    }
+    public onMessage(callback: any) {
+        if (this._eventHandler === undefined) {
+            this._eventHandler = new EventHandler(this);
+        }
+        this._eventHandler.on("message", callback);
     }
 };

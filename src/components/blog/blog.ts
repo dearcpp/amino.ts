@@ -3,9 +3,9 @@ import AminoClient, {
     IAminoStorage,
     AminoMember,
     AminoCommunity,
-    IAminoCommentStorage
+    AminoCommentStorage
 } from "./../../index"
-
+import {APIEndpoint} from "../APIEndpoint"
 /**
  * Class for working with blogs
  */
@@ -43,21 +43,22 @@ export class AminoBlog {
      * @param {number} [start] start position
      * @param {number} [size] count by start
      */
-    public get_comments(start: number = 1, size: number = 10): IAminoCommentStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog/${this.id}/comment?start=${start}&size=${size}`, {
+    public get_comments(start: number = 1, size: number = 10): AminoCommentStorage {
+        
+        let response = request("GET", APIEndpoint.CompileGetComents(this.id,this.community.id,start,size), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoCommentStorage(this.client, this.community, this, response.commentList);
+        return new AminoCommentStorage(this.client, this.community, this, response.commentList);
     }
 
     /**
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoBlog {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/blog/${this.id}`, {
+        let response = request("GET", APIEndpoint.CompileGetBlog(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -95,9 +96,9 @@ export class AminoBlog {
 /**
  * Class for storing blog objects
  */
-export class IAminoBlogStorage extends IAminoStorage<AminoBlog> {
+export class AminoBlogStorage extends IAminoStorage<AminoBlog> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoBlogStorage.prototype);
+        super(client, AminoBlogStorage.prototype);
         if (array) {
             let members: AminoMember[] = community.cache.members.get();
             array.forEach(struct => {

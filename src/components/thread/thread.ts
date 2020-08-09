@@ -2,12 +2,11 @@ import AminoClient, {
     request,
     IAminoStorage,
     AminoMember,
-    IAminoMessageStorage,
+    AminoMessageStorage,
     AminoCommunity,
-    AminoMessage
+    AminoMessage,
+    APIEndpoint
 } from "./../../index"
-
-import * as fs from "fs";
 
 declare type image_type = ('image/png' | 'image/jpg');
 
@@ -55,14 +54,15 @@ export class AminoThread {
      * Method for receiving thread messages
      * @param {number} [count] number of messages
      */
-    public get_message_list(count: number = 10): IAminoMessageStorage {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message?v=2&pagingType=t&size=${count}`, {
+    public get_message_list(count: number = 10): AminoMessageStorage {
+        
+        let response = request("GET", APIEndpoint.CompileGetMessageList(this.id,this.community.id,count), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
         });
 
-        return new IAminoMessageStorage(this.client, this.community, response.messageList);
+        return new AminoMessageStorage(this.client, this.community, response.messageList);
     }
 
     /**
@@ -71,7 +71,7 @@ export class AminoThread {
      * @param {string} [image] path to the image
      */
     public send_message(content: string): AminoMessage {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", APIEndpoint.CompileMessage(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -97,7 +97,7 @@ export class AminoThread {
         type: image_type,
         link: string
     }): AminoMessage {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", APIEndpoint.CompileMessage(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -128,7 +128,7 @@ export class AminoThread {
      * @param {image_type} [type] image type
      */
     public send_image(image: Buffer, type: image_type): AminoMessage {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", APIEndpoint.CompileMessage(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -154,7 +154,7 @@ export class AminoThread {
      * @param {string} [audio] path to audio file
      */
     public send_audio(audio: Buffer): AminoMessage {
-        let response = request("POST", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/message`, {
+        let response = request("POST", APIEndpoint.CompileMessage(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             },
@@ -174,10 +174,10 @@ export class AminoThread {
     }
 
     /**
-     * Method for leaving from thread
+     * Method for join to thread
      */
     public join(): void {
-        let response = request("POST", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
+        let response = request("POST", APIEndpoint.CompileThreadWithMember(this.id,this.community.id,this.community.me.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -188,7 +188,8 @@ export class AminoThread {
      * Method for leaving from thread
      */
     public leave(): void {
-        let response = request("DELETE", ` https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}/member/${this.community.me.id}`, {
+        
+        let response = request("DELETE", APIEndpoint.CompileThreadWithMember(this.id,this.community.id,this.community.me.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -199,7 +200,7 @@ export class AminoThread {
      * Method for updating the structure, by re-requesting information from the server
      */
     public refresh(): AminoThread {
-        let response = request("GET", `https://service.narvii.com/api/v1/x${this.community.id}/s/chat/thread/${this.id}`, {
+        let response = request("GET", APIEndpoint.CompileThread(this.id,this.community.id), {
             "headers": {
                 "NDCAUTH": "sid=" + this.client.session
             }
@@ -233,9 +234,9 @@ export class AminoThread {
 /**
  * Class for storing thread objects
  */
-export class IAminoThreadStorage extends IAminoStorage<AminoThread> {
+export class AminoThreadStorage extends IAminoStorage<AminoThread> {
     constructor(client: AminoClient, community: AminoCommunity, array?: any) {
-        super(client, IAminoThreadStorage.prototype);
+        super(client, AminoThreadStorage.prototype);
         if (array) {
             let threads: AminoThread[] = community.cache.threads.get();
             let members: AminoMember[] = community.cache.members.get();
